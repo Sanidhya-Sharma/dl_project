@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 
+# Custom enviorment
+venv_py
+venv_py/
+
 # Logs
 *.logs
 logs/
