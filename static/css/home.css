@@ -1,0 +1,79 @@
+    .important {
+        color: #336699;
+    }
+
+    .moving_images{
+        filter: brightness(0.5);
+    }
+
+    nav{
+      box-shadow: 10px 10px 30px 10px lightgrey;
+    }
+
+
+
+    /*-------------------------------MEDIA QUERIES FOR CROUSEL TEXT CAPTIONS------------------------------------------*/
+    /*// Extra small devices (portrait phones, less than 576px)*/
+    @media (max-width: 575.98px) {
+      .carousel-caption p{
+        font-size: 100%;
+      }
+      .carousel-caption h1{
+        font-size: 150%;
+      }
+      .carousel-caption{
+        bottom: 20%;
+      }
+    }
+
+    /*// Small devices (landscape phones, 576px and up)*/
+    @media (min-width: 576px) and (max-width: 767.98px) {
+      .carousel-caption p{
+        font-size: 120%;
+      }
+      .carousel-caption h1 {
+          font-size: 170%;
+      }
+      .carousel-caption{
+        bottom: 35%;
+      }
+    }
+
+    /*// Medium devices (tablets, 768px and up)*/
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      .carousel-caption p{
+        font-size: 140%;
+      }
+      .carousel-caption h1{
+        font-size: 190%;
+      }
+      .carousel-caption{
+        bottom: 40%;
+      }
+    }
+
+    /*// Large devices (desktops, 992px and up)*/
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+      .carousel-caption p{
+        font-size: 160%;
+      }
+      .carousel-caption h1{
+        font-size: 210%;
+      }
+      .carousel-caption{
+        bottom: 40%;
+      }
+    }
+
+    /*// Extra large devices (large desktops, 1200px and up)*/
+    @media (min-width: 1200px) {
+      .carousel-caption p{
+        font-size: 200%;
+      }
+      .carousel-caption h1{
+        font-size: 230%;
+      }
+      .carousel-caption{
+        bottom: 45%;
+      }
+    }

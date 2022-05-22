@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title xmlns="http://www.w3.org/1999/html">Hand Written Recognition</title>
+{% endblock %}
+
+{% block head %}
+  {{ super() }}
+    <link href="{{url_for('static', filename='css/canvas.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/canvas_notify.css')}}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+        <div class="row">
+
+            <div class="col-lg-6 col-md-12 col-sm-12 d1" id="canvas_div">
+<!--                <canvas id="can" width="400" height="400" style="position:absolute;top:10%;left:10%;border:2px solid;"></canvas>-->
+                <canvas id="can" class="canvas" width="500" height="500" style="position:relative;border:2px solid;"></canvas>
+            </div>
+
+            <div class="col-lg-3 col-md-12 col-sm-12 d2">
+                <h2>Hand Written Number Classification</h2>
+<!--                <img id="canvasimg" style="position:absolute;top:10%;left:52%;" style="display:none;">-->
+                <img id="canvasimg" height="200" width="200" style="position:relative;display:none">
+            </div>
+
+            <div class="col-lg-3 col-md-12 col-sm-12 d3">
+                <h3 id="prediction_tag">{{deeplearning_pred}}</h3>
+            </div>
+
+        </div>
+
+        <div class="row">
+           <div class="col-md-6 d4">
+                <div class="colortext" style="position:relative;">Choose Color</div>
+                <div class="color" id="green"></div>
+                <div class="color" id="blue"></div>
+                <div class="color" id="red"></div>
+<!--                <div style="position:relative;width:10%;height:50%;background:yellow;" id="yellow"></div>-->
+<!--                <div style="position:relative;width:10%;height:50%;background:orange;" id="orange"></div>-->
+                <div class="color" id="black"></div>
+           </div>
+           <div class="col-md-6 d4">
+                <div class="colortext" style="position:relative;">Eraser</div>
+                <div class="color" id="white"></div>
+           </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12 col-sm-12 d8">
+                    <label for="deep_learning_infra">Deep learning Architecture :</label>
+                        <select id="deep_learning_infra" class="form-select" aria-label="Default select example" data-toggle="tooltip" data-placement="top" title="Deep Learning Architecture Selection"> required>
+                            <option selected value="None">Please Select....</option>
+                                {% for deep_learning_key, deep_learning_value in deep_learning_model_dict.items() %}
+                                    <option value="{{deep_learning_value}}">{{deep_learning_key}}</option>
+                                {% endfor %}
+                        </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+<!--            <div class="col-md-4 col-sm-12">-->
+<!--                <div style="position:absolute;top:12%;left:43%;">Choose Color</div>-->
+<!--                <div style="position:absolute;top:15%;left:45%;width:10px;height:10px;background:green;" id="green" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:15%;left:46%;width:10px;height:10px;background:blue;" id="blue" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:15%;left:47%;width:10px;height:10px;background:red;" id="red" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:17%;left:45%;width:10px;height:10px;background:yellow;" id="yellow" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:17%;left:46%;width:10px;height:10px;background:orange;" id="orange" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:17%;left:47%;width:10px;height:10px;background:black;" id="black" onclick="color(this)"></div>-->
+<!--                <div style="position:absolute;top:20%;left:43%;">Eraser</div>-->
+<!--                <div style="position:absolute;top:22%;left:45%;width:15px;height:15px;background:white;border:2px solid;" id="white" onclick="color(this)"></div>-->
+<!--            </div>-->
+
+            <div class="col-md-6 col-sm-6 col-xs-6 d5">
+<!--                <input type="button" value="save" id="btn" size="30" onclick="save()" style="position:absolute;top:55%;left:10%;">-->
+                <button class="btn btn-lg custom_btn_design" type="button" value="Predict" id="sve"><i class="gg gg-smartphone-chip"></i> &nbsp;Predict</button>
+            </div>
+
+            <div class="col-md-6 col-sm-6 col-xs-6 d6">
+<!--                <input type="button" value="clear" id="clr" size="23" onclick="erase()" style="position:absolute;top:55%;left:15%;">-->
+                <button class="btn btn-lg custom_btn_design" type="button" value="clear" id="clr"><i class="gg gg-remove-r"></i> &nbsp;Clear</button>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 d7">
+                <button class="btn btn-lg custom_btn_design" type="button" value="Back" id="bck"><i class="gg gg-push-left"></i> &nbsp;Back</button>
+            </div>
+        </div>
+
+    <script src="{{url_for('static', filename='js/canvas.js')}}"></script>
+</div>
+
+{% endblock %}

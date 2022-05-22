@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>Navigation</title>
+{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important {
+        color: #336699;
+    }
+    .card_center{
+        text-align: -webkit-center;
+        padding: 10px 10px 10px 10px;
+        margin: 10px 10px 10px 10px;
+    }
+    .card{
+      box-shadow: 10px 10px 20px 5px lightgrey;
+    }
+    nav{
+      box-shadow: 10px 10px 30px 10px lightgrey;
+    }
+    body{
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cbccc8)) fixed;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+      <div class="row">
+          <div class="col-md-6 card_center">
+              <div class="card" style="width: 18rem;">
+                  <img class="card-img-top" src="{{url_for('static', filename='img/hand_written.jpg')}}" alt="Card image cap">
+                  <div class="card-body">
+                      <h5 class="card-title mb-2 fw-mediumbold">MNIST Hand Written Numbers</h5>
+                      <p class="card-text">Convolutional Neural Network for identifying the hand written numbers .</p>
+                      <a href="/canvas" class="btn btn-warning">Check it out !</a>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-6 card_center">
+          </div>
+      </div>
+
+  </div>
+{% endblock %}

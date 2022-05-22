@@ -1,0 +1,39 @@
+.notifyjs-foo-base {
+  opacity: 1;
+  /*width: 200px;*/
+  background: #F5F5F5;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.notifyjs-foo-base .title {
+    text-align: center;
+    font-family: cursive;
+    font-size: larger;
+}
+
+.notifyjs-foo-base .buttons {
+  font-size: 9px;
+  padding: 5px;
+  margin: 10px;
+  width: auto;
+}
+
+.notifyjs-foo-base button {
+  font-size: 9px;
+  padding: 5px;
+  margin: 2px;
+  width: 60px;
+}
+
+.notifyjs-container{
+  box-shadow: 10px 10px 10px 5px grey;
+}
+
+button>i.gg_notify_close{
+  color:red;
+}
+
+button>i.gg_notify_check{
+  color:green;
+}
