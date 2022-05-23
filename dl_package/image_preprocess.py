@@ -1,11 +1,43 @@
-# Imports
+# Imports for image pre-processing
 import base64
 from PIL import Image, ImageChops
 import cv2
 import numpy as np
+from numpy import asarray
 
+# Gets the infomation of the given image
+def image_info(image_name, saved_folder_location):
 
+    """
+    This is used to find the image information
+    :param image_name: Stored image name (str)
+    :param saved_folder_location: location of stored image (str)
+    :return: image width, height and dimentions (Truple)
+    """
+
+    img = Image.open(f'{saved_folder_location}/{image_name}')
+    img_np = asarray(img)
+    img_info = img_np.shape
+
+    return img_info
+
+# Converts base64 to image
 def decode_base64_to_image(base64_code_input):
+    '''
+    This function is used to convert the input base64 code to binary data format.
+
+    The Base64 character set contains:
+        26 uppercase letters
+        26 lowercase letters
+        10 numbers
+        + and / for new lines (some implementations may use different characters)
+
+    When the computer converts Base64 characters to binary, each Base64 character represents 6 bits of information.
+
+    :param base64_code_input: base64 string (64 Characters)
+    :return: Binary Data of image (Binary Data)
+    '''
+
     # Convert base64 to UTF8 format
     cleaned_image = base64_code_input.encode("utf-8")
 
@@ -14,8 +46,15 @@ def decode_base64_to_image(base64_code_input):
 
     return decoded_image
 
-
+# Converts image to base64
 def encode_image_to_base64(image_input):
+    """
+    This function helps encode a given binary image data input to base64.
+
+    :param image_input: image string (str)
+    :return: stored image name (str)
+    """
+
     # Convert base64 to UTF8 format
     cleaned_input_image = image_input.encode("utf-8")
 
@@ -24,8 +63,16 @@ def encode_image_to_base64(image_input):
 
     return encoded_image
 
-
+# Saves the decoded image to specified location
 def save_decoded_base64_image(decoded_base64, saved_folder_location):
+    """
+    This function helps to save a decoded image from base64 to binary image data to the desired location.
+
+    :param decoded_base64: Binary Data of image (Binary Data)
+    :param saved_folder_location: location to save the file to
+    :return: stored image name (str)
+    """
+
     # Converting and writing
     with open(f"{saved_folder_location}/saved_writing.jpg", "wb") as fh:
         fh.write(decoded_base64)
@@ -33,8 +80,16 @@ def save_decoded_base64_image(decoded_base64, saved_folder_location):
 
     return saved_image_name
 
-
+# Adds white background to the image (Images which are with transparent background)
 def add_white_background(image_name, saved_folder_location):
+    """
+    This function helps to add a white background to a given image.
+
+    :param image_name: Stored image name (str)
+    :param saved_folder_location: location of stored image (str)
+    :return: stored image name (str)
+    """
+
     # Adding white background and saving
     img_pillow = Image.open(f"{saved_folder_location}/{image_name}")
     new_image = Image.new("RGBA", img_pillow.size, "WHITE")  # Create a white rgba background
@@ -44,8 +99,15 @@ def add_white_background(image_name, saved_folder_location):
 
     return saved_image_name
 
-
+# Inverts the color of the image (black --> White and White --> black)
 def invert_colors(image_name, saved_folder_location):
+    """
+    This function inverts the colour of the given image.
+
+    :param image_name: Stored image name (str)
+    :param saved_folder_location: location of stored image (str)
+    :return: stored image name (str)
+    """
 
     # inverting colours and saving
     img = Image.open(f'{saved_folder_location}/{image_name}')
@@ -55,18 +117,34 @@ def invert_colors(image_name, saved_folder_location):
 
     return saved_image_name
 
+# Converts the image to grayscale
+def convert_to_grayscale(image_name, saved_folder_location, no_of_channels=3):
+    """
+    This function converts the given image to Gray Scale.
 
-def convert_to_grayscale(image_name, saved_folder_location):
+    :param image_name: Stored image name (str)
+    :param saved_folder_location: location of stored image (str)
+    :param no_of_channels: Number of channels of image (int) (defaults to 3)
+    :return: stored image name (str)
+    """
 
     # Converting to gray scale and normalizing the image
-    cv_img = cv2.imread(f'{saved_folder_location}/{image_name}', 3)
+    cv_img = cv2.imread(f'{saved_folder_location}/{image_name}', no_of_channels)
     gray_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
     cv2.imwrite('saved/gray_scaled.jpg', gray_image)
     saved_image_name = "gray_scaled.jpg"
 
     return saved_image_name
 
+# Normalizes the image of (0-255) to (0-1) using MinMax technique
 def minmax_normalizer(image_name, saved_folder_location):
+    """
+    This function is used to perform a MinMax Normalization on the given input image making from 0-255 to 0-1.
+
+    :param image_name: Stored image name (str)
+    :param saved_folder_location: location of stored image (str)
+    :return: stored image name (str)
+    """
 
     # Reading the saved image
     input_image = Image.open(f'{saved_folder_location}/{image_name}')
