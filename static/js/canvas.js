@@ -172,15 +172,34 @@
         canvas.addEventListener("mousemove", function (e) {
             findxy('move', e)
         }, false);
+
+        //touch
+        canvas.addEventListener("touchmove", function (e) {
+            findxy('move', e)
+        }, false);
+
         canvas.addEventListener("mousedown", function (e) {
             findxy('down', e)
         }, false);
+
+        // touch
+        canvas.addEventListener("touchstart", function (e) {
+            findxy('down', e)
+        }, false);
+
         canvas.addEventListener("mouseup", function (e) {
             findxy('up', e)
         }, false);
+
         canvas.addEventListener("mouseout", function (e) {
             findxy('out', e)
         }, false);
+
+        // touch
+        canvas.addEventListener("touchend", function (e) {
+            findxy('out', e)
+        }, false);
+
     }
 
     // Setting the active colour
@@ -309,10 +328,24 @@
     }
 
     // Drawing the path
-    function draw() {
+    function draw(e) {
         ctx.beginPath();
-        ctx.moveTo(prevX, prevY);
-        ctx.lineTo(currX, currY);
+
+        // Accepting Mouse and Touch inputs ctx.lineTo(e.clientX, e.clientY);
+        if (e.type == 'touchmove') {
+            ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+            console.log(e.touches)
+        }else {
+            ctx.moveTo(prevX, prevY);
+        }
+
+        // Accepting Mouse and Touch inputs ctx.moveTo(e.clientX, e.clientY);
+        if (e.type == 'touchmove') {
+            ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+        }else {
+            ctx.lineTo(currX, currY);
+        }
+
         ctx.strokeStyle = x;
 
         // ctx.lineWidth = y;  //commented due to issues with stroke
@@ -627,6 +660,10 @@
 
     // Function responsible for drawing with respect to event listener call
     function findxy(res, e) {
+
+        // Getting body element
+        let scroll_lock = document.getElementById("mainbody")
+
         if (res == 'down') {
             prevX = currX;
             prevY = currY;
@@ -649,12 +686,22 @@
             flag = false;
         }
         if (res == 'move') {
+
             if (flag) {
                 prevX = currX;
                 prevY = currY;
                 currX = e.clientX - canvas.offsetLeft;
                 currY = e.clientY - canvas.offsetTop;
-                draw();
+
+                draw(e);
+
+                // Scroll lock when drawing
+                scroll_lock.style.overflow = "hidden"
             }
-        }
+
+        }else
+            {
+                // Scroll not locked
+                scroll_lock.style.overflow = "visible"
+            }
     }
