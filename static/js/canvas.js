@@ -33,11 +33,6 @@
             true
         );
 
-        // Event Listener for resizing window
-        window.addEventListener("resize",
-            resize_canvas,
-            true);
-
         //Enable tooltips
         $(function () {
           $('[data-toggle="tooltip"]').tooltip()
@@ -66,78 +61,6 @@
         fire_console_events()
     }
 
-    // function for reducing the canvas to 300*300
-    function resize_canvas(){
-        // Grabing the canvas
-        canvas = document.getElementById("can");
-
-        // Checking conditions
-        if (canvas.width  < window.innerWidth)
-        {
-            canvas.width  = 500;
-            canvas.height = 500;
-        }else{
-            canvas.width  = 300;
-            canvas.height  = 300;
-        }
-
-        // if (canvas.height < window.innerHeight)
-        // {
-        //     canvas.height = 500;
-        // }else{
-        //     canvas.width  = 300;
-        // }
-
-        //initializing
-        canvas_refresh(canvas.width, canvas.height)
-
-    }
-
-    // refreshes the canvas with new height and width
-    function canvas_refresh(width, height){
-
-        //// Creating new save canvas
-        // var sv_canv = document.createElement('canvas');
-        // sv_canv.setAttribute("height",height)
-        // sv_canv.setAttribute("width",width)
-        // sv_canv.setAttribute("class","canvas")
-        // sv_canv.style.width =width+"px";
-        // sv_canv.style.height =height+"px";
-        // sv_canv.style.border ="2px solid";
-        // sv_canv.style.display ="none";
-        // sv_canv.id = 'save_can';
-
-        //// Drawing the old image to the new canvas
-        // sv_canv.getContext('2d').drawImage(canvas, 0,0,canvas.width, canvas.height, 0,0, width, height);
-
-        // sv_canv.setAttribute("src",`${sv_canv.toDataURL()}`)
-
-
-        //// Adding new save canvas to the DOM
-        // document.getElementById("canvas_div").appendChild(sv_canv);
-
-
-        //Destroying old canvas
-        var oldcanv = document.getElementById('can');
-        document.getElementById("canvas_div").removeChild(oldcanv)
-
-        // Creating new canvas
-        var canv = document.createElement('canvas');
-        canv.setAttribute("height",height)
-        canv.setAttribute("width",width)
-        canv.setAttribute("class","canvas")
-        // canv.style.width =width+"px";
-        // canv.style.height =height+"px";
-        canv.style.border ="2px solid";
-        canv.id = 'can';
-
-        //Adding new canvas to the DOM
-        document.getElementById("canvas_div").appendChild(canv);
-
-        // initializing the canvas
-        init()
-
-    }
 
     // Variables for state
     var e = window.event
@@ -201,6 +124,7 @@
         }, false);
 
     }
+
 
     // Setting the active colour
     function active_color_box(obj) {
