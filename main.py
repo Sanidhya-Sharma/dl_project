@@ -1,15 +1,18 @@
 # Global Imports
 from flask import Flask, render_template, request, url_for, redirect, jsonify
 import os
-import datetime
 
+# Logging
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from logging import Formatter
 
+# Image processing imports
 from PIL import Image
-from numpy import asarray
+
+# DS imports
 import numpy as np
+
 
 # Local Custom Packages Import
 import dl_package as dlpckg
@@ -46,6 +49,7 @@ def deep_learning_model_init():
 
 # ----------------Routes--------------------
 
+# Logging
 @app.before_first_request
 def before_first_request():
 
@@ -71,7 +75,7 @@ def before_first_request():
     # handler = logging.FileHandler(log_file)
 
     # Time Rotating handler
-    handler = TimedRotatingFileHandler(filename=log_file, when='H', interval=1, backupCount=2, encoding='utf-8', delay=False)
+    handler = TimedRotatingFileHandler(filename=log_file, when='H', interval=1, backupCount=1, encoding='utf-8', delay=False)
 
     # Create formatter and add to handler
     FORMATTER = Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -211,8 +215,11 @@ def result():
             # invert image colors
             invert_color_image = dlpckg.invert_colors(white_background_image, saved_folder_location)
 
+            # Getting channels of the inverted image
+            img_dim_inv = dlpckg.image_info(invert_color_image, saved_folder_location)[2]
+
             # convert to gray scale
-            gray_scale_image = dlpckg.convert_to_grayscale(invert_color_image, saved_folder_location)
+            gray_scale_image = dlpckg.convert_to_grayscale(invert_color_image, saved_folder_location, img_dim_inv)
 
             # final image preprocessed
             final_image = Image.open(f'saved/{gray_scale_image}')
