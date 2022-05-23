@@ -530,7 +530,7 @@
 
             },
             // Fail
-            error: function (jqXHR, exception) {
+            error: function (jqXHR, exception ,response) {
                 let msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
@@ -555,7 +555,7 @@
 
                 // alert(msg)
                 // alert("Some Error")
-                $.notify(`Hmm Somthings not Fine here \n Looks like there is ${m}`, "error");
+                $.notify(`Hmm Somthings not Fine here \n Looks like there is ${response.data}`, "error");
 
                 // Notification Repeat Fix
                 clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
