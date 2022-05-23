@@ -578,7 +578,7 @@
             success: function(response) {
 
                 // Positive response message
-                console.log(response)
+                // console.log(response)
 
                 if(response.success){
                     $.notify(`${response.data}`, "success");
