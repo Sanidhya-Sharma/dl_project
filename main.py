@@ -1,6 +1,12 @@
 # Global Imports
 from flask import Flask, render_template, request, url_for, redirect, jsonify
 import os
+import datetime
+
+import logging
+from logging.handlers import TimedRotatingFileHandler
+from logging import Formatter
+
 from PIL import Image
 from numpy import asarray
 import numpy as np
@@ -16,7 +22,6 @@ import dl_package as dlpckg
 # initialize app
 app = Flask(__name__)
 
-
 # Custom Function
 def deep_learning_model_init():
 
@@ -28,22 +33,70 @@ def deep_learning_model_init():
 
     # Initialization for Sequential Dense deep learning model
     dlpckg.sequential_dense_deep_learning(image=dummy_image, parent_directory=parent_directory)
-    print("Initialized Sequential Dense model")
+
+    # Logs
+    app.logger.info("Initialized Sequential Dense model For first time")
 
     # Initialization for CNN deep learning model
     dlpckg.cnn_deep_learning(image=dummy_image, parent_directory=parent_directory)
-    print("Initialized CNN + Dense model")
+
+    # Logs
+    app.logger.info("Initialized CNN + Dense model For first time")
 
 
 # ----------------Routes--------------------
+
+@app.before_first_request
+def before_first_request():
+
+    # Setting log level
+    log_level = logging.INFO
+
+    # Removing Handlers
+    for handler in app.logger.handlers:
+        app.logger.removeHandler(handler)
+
+    # Log directory path
+    root = os.path.dirname(os.path.abspath(__file__))
+    log_dir_path = os.path.join(root, 'logs')
+
+    # Check if the "logs" directory is available at root directory if not create one
+    if not os.path.exists(log_dir_path):
+        os.mkdir(log_dir_path)
+
+    # Log File path
+    log_file = os.path.join(log_dir_path, 'app.log')
+
+    # Default handler
+    # handler = logging.FileHandler(log_file)
+
+    # Time Rotating handler
+    handler = TimedRotatingFileHandler(filename=log_file, when='H', interval=1, backupCount=2, encoding='utf-8', delay=False)
+
+    # Create formatter and add to handler
+    FORMATTER = Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(FORMATTER)
+
+    # Adding log handlers
+    app.logger.addHandler(handler)
+
+    # Setting log level (default INFO)
+    app.logger.setLevel(log_level)
+
+    # Logging
+    app.logger.info("Logs Initialized")
 
 
 # Default Route
 @app.route("/", methods=["GET"])
 def home():
 
+    # Logs
+    app.logger.info("Browsed for Home Page")
+
     # flag for navbar
     include_nav = True
+
     # Flag for footer
     include_footer = True
 
@@ -53,8 +106,12 @@ def home():
 @app.route("/navigation", methods=["GET"])
 def navigation():
 
+    # Logs
+    app.logger.info("Browsed for Navigation Page")
+
     # flag for navbar
     include_nav = True
+
     # Flag for footer
     include_footer = True
 
@@ -64,8 +121,11 @@ def navigation():
 @app.route("/canvas", methods=["GET"])
 def canvas():
 
-    # initialize the Deep learning Models
+    # initialize the Deep learning Models (Commented as there is already a JS function responsible)
     # deep_learning_model_init()
+
+    # Logs
+    app.logger.info("Browsed for Canvas Page")
 
     # Flag for navbar
     include_nav = False
@@ -73,7 +133,8 @@ def canvas():
     # Flag for footer
     include_footer = False
 
-    deep_learning_model_dict = {"Sequential Dense Model (4 layer 2 Hidden)" : "Dense", "CNN (7 layer Conv2D + 1 Dense)" : "CNN"}
+    # Deep learning Model List
+    deep_learning_model_dict = {"Sequential Dense Model (4 layer 2 Hidden)": "Dense", "CNN (7 layer Conv2D + 1 Dense)": "CNN"}
 
     return render_template('canvas.html', include_nav=include_nav, include_footer=include_footer, deep_learning_model_dict=deep_learning_model_dict)
 
@@ -95,12 +156,18 @@ def dl_initialization():
             # Checking failing case
             # assert "birthday cake" == "ice cream cake", "Should've asked for pie"
 
+            # Logs
+            app.logger.info("DL initialized ran OK")
+
             # returning prediction via AJAX
             resp = jsonify(success=True, status=200, data=str("Deep Learning Models initialized"))
 
             return resp
 
         except Exception as e:
+
+            # Logs
+            app.logger.error("DL initialization failed with error : "+e+"")
 
             # returning prediction via AJAX
             resp = jsonify(success=False, status=500, data=str("Deep Learning Models unable to initialize"))
@@ -153,22 +220,35 @@ def result():
             # Predicting values using sequential Deep learning
             if requested_architecture == "CNN":
                 prediction = dlpckg.cnn_deep_learning(final_image, parent_directory)
-                print("Ran CNN")
+
+                # Logs
+                app.logger.info("Prediction called for CNN")
 
             elif requested_architecture == "Dense":
                 prediction = dlpckg.sequential_dense_deep_learning(final_image, parent_directory)
-                print("Ran Dense")
+
+                # Logs
+                app.logger.info("Prediction called for Sequential Dense")
+
             else:
                 prediction = "No Architecture Selected"
-                print("Ran Nothing")
+
+                # Logs
+                app.logger.info("Prediction not called as architecture was not provided")
 
             # returning prediction via AJAX
             resp = jsonify(success=True, status=200, data=str(prediction))
+
+            # Logs
+            app.logger.info("Prediction Result ran OK")
 
             return resp
 
         except Exception as e:
 
             resp = jsonify(success=False, status=404, exception="Error Saving the file due to Error : "+e+"")
+
+            # Logs
+            app.logger.error("Prediction Result Failed with error : "+e+"")
 
             return resp
