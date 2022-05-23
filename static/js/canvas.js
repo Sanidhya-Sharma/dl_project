@@ -334,7 +334,6 @@
         // Accepting Mouse and Touch inputs ctx.lineTo(e.clientX, e.clientY);
         if (e.type == 'touchmove') {
             ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
-            console.log(e.touches)
         }else {
             ctx.moveTo(prevX, prevY);
         }
