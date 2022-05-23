@@ -150,6 +150,49 @@
       color: gray;
   }
 
+/*  MEDIA QUERIES */
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    #can{
+        width: 500px;
+        height: auto;
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    #can{
+        width: 500px;
+        height: auto;
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    #can{
+        width: 500px;
+        height: auto;
+    }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    #can{
+        width: 500px;
+        height: auto;
+    }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+    #can{
+        width: 500px;
+        height: auto;
+    }
+}
+
+
+
  .custom_btn_design:hover {
     box-shadow: rgb(45 35 66 ) 0 4px 8px, rgb(45 35 66 ) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
     transition: all 400ms cubic-bezier(0.47, 1.64, 0.41, 0.8);
