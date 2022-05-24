@@ -123,6 +123,26 @@
             findxy('out', e)
         }, false);
 
+
+
+        // Prevent scrolling when touching the canvas
+        document.body.addEventListener("touchstart", function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+        document.body.addEventListener("touchend", function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+        document.body.addEventListener("touchmove", function (e) {
+          if (e.target == canvas) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+
     }
 
 
@@ -593,10 +613,9 @@
             currX = e.clientX - canvas.offsetLeft;
             currY = e.clientY - canvas.offsetTop;
 
-
-
             flag = true;
             dot_flag = true;
+
             if (dot_flag) {
                 ctx.beginPath();
                 ctx.fillStyle = x;
@@ -619,12 +638,12 @@
                 draw(e);
 
                 // Scroll lock when drawing
-                scroll_lock.style.overflow = "hidden"
+                // scroll_lock.style.overflow = "hidden"
             }
 
         }else
             {
                 // Scroll not locked
-                scroll_lock.style.overflow = "visible"
+                // scroll_lock.style.overflow = "visible"
             }
     }
