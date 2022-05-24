@@ -5,6 +5,10 @@
     padding:0;
   }
 
+  .sortable-handler {
+    touch-action: none;
+    }
+
   span > i.canvas_icon_bot {
     position: relative;
     left: 50%;
