@@ -3,11 +3,37 @@
     background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cbccc8)) fixed;
     margin:0;
     padding:0;
+    cursor: url('../img/cursor_arrow.png'), auto;
   }
 
-  .sortable-handler {
-    touch-action: none;
-    }
+  /* Select cursor */
+  div > #deep_learning_infra:hover{
+    cursor: url('../img/cursor_arrow.png'), auto;
+  }
+
+   /*-------------------------------------------------------Scroll Bar-----------------------------------------------*/
+   /* width */
+   ::-webkit-scrollbar {
+       width: 10px;
+   }
+
+   /* Track */
+   ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 5px grey;
+      border-radius: 20px;
+   }
+
+   /* Handle */
+   ::-webkit-scrollbar-thumb {
+      background: cyan;
+      border-radius: 10px;
+   }
+
+   /* Handle on hover */
+   ::-webkit-scrollbar-thumb:hover {
+      background: darkcyan;
+   }
+  /*-----------------------------------------------------------------------------------------------------------------*/
 
   span > i.canvas_icon_bot {
     position: relative;
@@ -71,7 +97,7 @@
 
   .canvas {
        /*cursor: pointer;*/
-       cursor: url("../js/pencil.png"),crosshair !important;
+       cursor: url("../img/pencil.png") ,crosshair !important;
        z-index: 2;
   }
 
@@ -157,6 +183,11 @@
 /*  MEDIA QUERIES */
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
+    html body{
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
     #can{
         width: 500px;
         height: auto;
@@ -165,6 +196,12 @@
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+
+    html body{
+        max-width: 100%;
+        overflow-x: hidden;
+        }
+
     #can{
         width: 500px;
         height: auto;
@@ -173,6 +210,12 @@
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+    html body{
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+
     #can{
         width: 500px;
         height: auto;
@@ -181,6 +224,11 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
+    html body{
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
     #can{
         width: 500px;
         height: auto;
@@ -189,12 +237,28 @@
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
+    html body{
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
     #can{
         width: 500px;
         height: auto;
     }
 }
 
+
+    /* Blinking Animation */
+    .blink_me {
+      animation: blinker 1s linear 5;
+    }
+
+    @keyframes blinker {
+      50% {
+        opacity: 0;
+      }
+    }
 
 
  .custom_btn_design:hover {
