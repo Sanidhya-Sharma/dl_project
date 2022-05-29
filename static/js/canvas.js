@@ -4,10 +4,13 @@
 // On-page Load call with even listeners
     document.getElementById("mainbody").onload = function() {
 
+        // Disable right click and inspect events
+        disable_right_click()
+
         //initializing
         init()
 
-        //Initializing color event listners
+        //Initializing color event listeners
         color_boxes_event_listners()
 
         // Initialize Deep Learning model
@@ -41,7 +44,83 @@
         // Console Clear after some time
         clear_console(500)
 
+        // Dev message
+        my_message()
+
     };
+
+    // sleep
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    // Async dev message
+    async function my_message() {
+
+        //sleep call
+        await sleep(2000)
+
+        //Custom message
+        $(function() {
+            var successOptions = {
+                autoHideDelay: 20000,
+                showAnimation: "fadeIn",
+                hideAnimation: "fadeOut",
+                hideDuration: 700,
+                arrowShow: false,
+                className: "success",
+            };
+            $.notify(`Hi this is Sanidhya Sharma :), This site is currently under development. \n Enjoy making real time Test predictions of single digits 0-9 on the canvas \n with sequential dense and CNN architecture \n Step 1 : Drawn on canvas \n Step 2 : Select the Architecture drop down \n Step 3 : Press Predict Button \n Step 4: Press clear button and retry :P`, successOptions);
+        });
+
+    }
+
+    // Disable the right click context menu, F12, cntrl+I to inspect and various other interactions
+    function disable_right_click(){
+
+        $(document).ready(function() {
+            function disableSelection(e) {
+                if (typeof e.onselectstart != "undefined") e.onselectstart = function() {
+                    return false
+                };
+                else if (typeof e.style.MozUserSelect != "undefined") e.style.MozUserSelect = "none";
+                else e.onmousedown = function() {
+                    return false
+                };
+                e.style.cursor = "default"
+            }
+            window.onload = function() {
+                disableSelection(document.body)
+            };
+
+            window.addEventListener("keydown", function(e) {
+                if (e.ctrlKey && (e.which == 65 || e.which == 66 || e.which == 67 || e.which == 70 || e.which == 73 || e.which == 80 || e.which == 83 || e.which == 85 || e.which == 86)) {
+                    e.preventDefault()
+                }
+            });
+            document.keypress = function(e) {
+                if (e.ctrlKey && (e.which == 65 || e.which == 66 || e.which == 70 || e.which == 67 || e.which == 73 || e.which == 80 || e.which == 83 || e.which == 85 || e.which == 86)) {}
+                return false
+            };
+
+            document.onkeydown = function(e) {
+                e = e || window.event;
+                if (e.keyCode == 123 || e.keyCode == 18) {
+                    return false
+                }
+            };
+
+            document.oncontextmenu = function(e) {
+                var t = e || window.event;
+                var n = t.target || t.srcElement;
+                if (n.nodeName != "A") return false
+            };
+            document.ondragstart = function() {
+                return false
+            };
+        });
+
+    }
+
 
     // clear console after few seconds Async
     function clear_console(ms) {
@@ -493,11 +572,17 @@
                     headingDiv.innerHTML = "<h4> Deep Learning Predicts :<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h2 class='responce_dl'>" + response.data + "<h2></div>";
                     $.notify(`Please select the model architecture !`, "warning");
 
+                    // Focus on the element and blink
+                    document.getElementById("deep_learning_infra").focus();
+                    document.getElementById("deep_learning_infra").classList.add("blink_me")
+
+                    setTimeout( () => {document.getElementById("deep_learning_infra").classList.remove("blink_me")} , 5000)
+
                     // Notification Repeat Fix
                     clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
 
                 }else {
-                    headingDiv.innerHTML = "<h4> Deep Learning Predicts ::<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h1 class='responce_dl'>" + response.data + "<h1></div>";
+                    headingDiv.innerHTML = "<h4> Deep Learning Predicts :<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h1 class='responce_dl'>" + response.data + "<h1></div>";
                     $.notify(`Prediction Successful`, "success");
 
                     // Notification Repeat Fix
