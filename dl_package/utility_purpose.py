@@ -1,5 +1,8 @@
 import os
 from sys import platform
+import base64
+import hashlib
+import random
 
 
 def create_saved_folder(parent_directory):
@@ -77,3 +80,22 @@ def request_base64_extractor(responce):
     base64_image = responce_to_list[-1]
 
     return base64_image
+
+# Generate Hash key
+def generate_hash_key():
+    """
+    @return: A hashkey for use to authenticate agains the API.
+    """
+    return hashlib.sha256(str(random.getrandbits(256)).encode('utf-8')).hexdigest()
+
+# Get the application key
+def get_app_key(loc :str):
+    """
+    This function is used to provide app key
+    :param location : (Str) location of env file
+    :return: (Str) the app key
+    """
+    with open(str(loc), 'r') as apikey:
+        key = apikey.read().replace('\n', '')
+    return key
+

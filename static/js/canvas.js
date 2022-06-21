@@ -4,6 +4,9 @@
 // On-page Load call with even listeners
     document.getElementById("mainbody").onload = function() {
 
+        // initializing creds
+        key_call()
+
         // Disable right click and inspect events
         disable_right_click()
 
@@ -12,9 +15,6 @@
 
         //Initializing color event listeners
         color_boxes_event_listners()
-
-        // Initialize Deep Learning model
-        dl_initialization()
 
         // Even Listener for save button
         document.getElementById("sve").addEventListener("click",
@@ -73,6 +73,46 @@
         });
 
     }
+
+    // Getting the Credentials
+    function key_call(){
+
+       var rt = $.ajax({
+            url: "/keyValuesCalls",
+            type: 'GET',
+            dataType: 'json',
+        }).done( function(json) {
+
+            // Storing keys
+            var apiKey = json["x-api-key"]
+            var tempKey = json["temp-key"]
+
+            // Calling global setup for AJAX Headers and CSRF
+            Ajax_global_setup(apiKey, tempKey)
+
+        }).fail( function(data) {
+            alert("Security initialization failed !")
+        });
+
+    }
+
+    // Global Ajax Setup
+    function Ajax_global_setup(apiKey, tempKey) {
+        // Setting global headers for AJAX request
+        $.ajaxSetup({
+            // CSRF Security
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            },
+            // API Key
+            headers: { 'x-api-key': apiKey, 'temp-key': tempKey}
+        });
+
+        // Initialize Deep Learning model (It needs the Security)
+        dl_initialization()
+    };
 
     // Disable the right click context menu, F12, cntrl+I to inspect and various other interactions
     function disable_right_click(){
@@ -433,7 +473,6 @@
                 // Clear aborted
                 $.notify(`Clear operation aborted !`, "warning");
 
-                console.log("Clear")
 
                 clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
 

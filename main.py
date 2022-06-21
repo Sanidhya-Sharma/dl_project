@@ -1,6 +1,11 @@
 # Global Imports
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+from flask import Flask, render_template, request, url_for, redirect, jsonify, abort, send_from_directory
 import os
+from functools import wraps
+
+# CSRF
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 
 # Logging
 import logging
@@ -13,7 +18,6 @@ from PIL import Image
 # DS imports
 import numpy as np
 
-
 # Local Custom Packages Import
 import dl_package as dlpckg
 
@@ -22,8 +26,59 @@ import dl_package as dlpckg
 # model_filename = "lr_c32.pkl"
 # lr = pickle.load(open("./models/"+model_filename+"", 'rb'))
 
-# initialize app
-app = Flask(__name__)
+# Self Signed SSL
+import ssl
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain('creds/ssl/cert.pem', 'creds/ssl/key.pem')
+
+# Initialize app
+app = Flask(__name__, static_folder='static')
+
+# Initialize CSRF
+csrf = CSRFProtect(app)
+csrf.init_app(app)
+
+# Temp key
+global appKey
+global tempKey
+
+# Custom Key for CSRF
+app.config.update(dict(
+    SECRET_KEY=dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key"),
+    WTF_CSRF_SECRET_KEY=dlpckg.generate_hash_key()
+))
+
+# Image folder
+PEOPLE_FOLDER = os.path.join('static', 'img')
+app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
+
+
+# CUSTOM WRAPPER (Dual Key)
+# The actual decorator function for checking the api Key for require_appkey wrapper
+def require_appkey_tempKey(view_function):
+    @wraps(view_function)
+    # the new, post-decoration function. Note *args and **kwargs here.
+    def decorated_function(*args, **kwargs):
+
+        # storing in key
+        key = dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key")
+
+        # Check if the input x-api-key matches the apiKey
+        #if request.args.get('key') and request.args.get('key') == key:
+        # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
+        if request.headers.get('temp-key') == tempKey and request.headers.get('x-api-key') == key:
+            app.logger.info("Dual keys Verified")
+            return view_function(*args, **kwargs)
+        else:
+            app.logger.error("Dual keys Verification failed")
+            abort(401)
+
+    return decorated_function
+
+# Providing static folder
+@app.route('/<path:filename>')
+def send_file(filename):
+    return send_from_directory(app.static_folder, filename)
 
 # Custom Function
 def deep_learning_model_init():
@@ -90,60 +145,92 @@ def before_first_request():
     # Logging
     app.logger.info("Logs Initialized")
 
+    # Global Super key
+    global tempKey
+    tempKey = dlpckg.generate_hash_key()
+
+    # App key Setup
+    key = dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key")
+    global appKey
+    appKey = key
+
+
+# @app.before_request
+# def header_check():
+#     headers = request.headers
+#     print(headers)
+#     pass
+#
+# @app.after_request
+# def after_request_check():
+#     pass
+#     # we have a response to manipulate, always return one
+#     return response
+
+@app.route("/keyValuesCalls", methods=["GET"])
+def get_keys():
+    # POST request
+    if request.method == 'GET':
+        keys = {
+            'x-api-key': appKey,
+            'temp-key': tempKey
+        }
+    return jsonify(keys)
 
 # Default Route
 @app.route("/", methods=["GET"])
 def home():
+    if request.method == 'GET':
+        # Logs
+        app.logger.info("Browsed for Home Page")
 
-    # Logs
-    app.logger.info("Browsed for Home Page")
+        # flag for navbar
+        include_nav = True
 
-    # flag for navbar
-    include_nav = True
-
-    # Flag for footer
-    include_footer = True
+        # Flag for footer
+        include_footer = True
 
     return render_template('home.html', include_nav=include_nav, include_footer=include_footer)
 
 # Navigation Page
 @app.route("/navigation", methods=["GET"])
 def navigation():
+    if request.method == 'GET':
+        # Logs
+        app.logger.info("Browsed for Navigation Page")
 
-    # Logs
-    app.logger.info("Browsed for Navigation Page")
+        # flag for navbar
+        include_nav = True
 
-    # flag for navbar
-    include_nav = True
-
-    # Flag for footer
-    include_footer = True
+        # Flag for footer
+        include_footer = True
 
     return render_template('navigation.html', include_nav=include_nav, include_footer=include_footer)
 
 # Canvas Page
 @app.route("/canvas", methods=["GET"])
 def canvas():
+    if request.method == 'GET':
+        # initialize the Deep learning Models (Commented as there is already a JS function responsible)
+        # deep_learning_model_init()
 
-    # initialize the Deep learning Models (Commented as there is already a JS function responsible)
-    # deep_learning_model_init()
+        # Logs
+        app.logger.info("Browsed for Canvas Page")
 
-    # Logs
-    app.logger.info("Browsed for Canvas Page")
+        # Flag for navbar
+        include_nav = False
 
-    # Flag for navbar
-    include_nav = False
+        # Flag for footer
+        include_footer = False
 
-    # Flag for footer
-    include_footer = False
-
-    # Deep learning Model List
-    deep_learning_model_dict = {"Sequential Dense Model (4 layer 2 Hidden)": "Dense", "CNN (7 layer Conv2D + 1 Dense)": "CNN"}
+        # Deep learning Model List
+        deep_learning_model_dict = {"Sequential Dense Model (4 layer 2 Hidden)": "Dense", "CNN (7 layer Conv2D + 1 Dense)": "CNN"}
 
     return render_template('canvas.html', include_nav=include_nav, include_footer=include_footer, deep_learning_model_dict=deep_learning_model_dict)
 
 # Canvas Page
 @app.route("/dl_initialization", methods=["GET", "POST"])
+@require_appkey_tempKey
 def dl_initialization():
 
     # GET request
@@ -171,7 +258,7 @@ def dl_initialization():
         except Exception as e:
 
             # Logs
-            app.logger.error("DL initialization failed with error : "+e+"")
+            app.logger.error("DL initialization failed with error : "+str(e)+"")
 
             # returning prediction via AJAX
             resp = jsonify(success=False, status=500, data=str("Deep Learning Models unable to initialize"))
@@ -180,11 +267,12 @@ def dl_initialization():
 
 # Deep learning Results Endpoint
 @app.route("/result", methods=["GET", "POST"])
+@require_appkey_tempKey
 def result():
 
     # GET request
     if request.method == 'GET':
-        return render_template("canvas.html")
+        return redirect(url_for('error401'))
 
     # POST request
     if request.method == 'POST':
@@ -253,9 +341,26 @@ def result():
 
         except Exception as e:
 
-            resp = jsonify(success=False, status=404, exception="Error Saving the file due to Error : "+e+"")
+            resp = jsonify(success=False, status=404, exception="Error Saving the file due to Error : "+str(e)+"")
 
             # Logs
-            app.logger.error("Prediction Result Failed with error : "+e+"")
+            app.logger.error("Prediction Result Failed with error : "+str(e)+"")
 
             return resp
+
+# CSRF ERROR PAGE
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    # Logs
+    app.logger.error("CSRF ERROR : "+str(e)+" ")
+
+    # flag for navbar
+    include_nav = True
+
+    # Flag for footer
+    include_footer = True
+
+    # Location of the image in static folder
+    full_filename_image = os.path.join(app.config['UPLOAD_FOLDER'], 'hacker.png')
+
+    return render_template('errorCSRF.html', reason=e.description, hacker_img=full_filename_image), 400

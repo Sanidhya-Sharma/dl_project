@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+    {% block head %}
+
+        {{ super() }}
+
+        {% block title %}
+            <title>CSRF ERROR</title>
+        {% endblock %}
+
+        <style>
+        * {
+	    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            text-align: center;
+            margin: 0;
+            background: linear-gradient(120deg, #6F1E51 0%, #ED4C67 100%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+        }
+
+        img {
+            width: 250px;
+            margin: auto;
+            padding-top: 3em;
+        }
+
+        h1 {
+            font-weight: 200;
+            font-size: 4em;
+            margin: 1em;
+        }
+
+        p {
+            font-size: 1.2em;
+        }
+
+        .custom_btn_design:hover {
+            box-shadow: rgb(45 35 66 ) 0 4px 8px, rgb(45 35 66 ) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+            transition: all 400ms cubic-bezier(0.47, 1.64, 0.41, 0.8);
+            transform: translateY(-2px);
+         }
+         .custom_btn_design:active {
+            box-shadow: #d6d6e7 0 3px 7px inset;
+            transition: all 400ms cubic-bezier(0.47, 1.64, 0.41, 0.8);
+            transform: translateY(2px);
+         }
+         .custom_btn_design:focus {
+            box-shadow: #d6d6e7 0 0 0 1.5px inset, rgb(45 35 66) 0 2px 4px, rgb(45 35 66 ) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+         }
+         .custom_btn_design {
+            align-items: center;
+            appearance: none;
+            background-color: #FCFCFD;
+            border-radius: 4px;
+            border-width: 0;
+            box-shadow: rgb(45 35 66 ) 0 2px 4px, rgb(45 35 66 ) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+            box-sizing: border-box;
+            color: #36395A;
+            cursor: pointer;
+            display: inline-flex;
+            font-family: "JetBrains Mono",monospace;
+            height: 48px;
+            justify-content: center;
+            line-height: 1;
+            list-style: none;
+            overflow: hidden;
+            padding-left: 16px;
+            padding-right: 16px;
+            position: relative;
+            text-align: left;
+            text-decoration: none;
+            transition: box-shadow .15s,transform .15s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+            will-change: box-shadow,transform;
+            font-size: 18px;
+         }
+    </style>
+
+    {% endblock %}
+
+{% block content %}
+
+    {% if include_nav %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Sanidhya Sharma</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/navigation">Projects</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">About Me</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Under Construction</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+    {% endif %}
+    <img src="{{ hacker_img }}" alt="User Image">
+    <h1 align="center">CSRF ERROR !</h1>
+    <h3 align="center">Reason : {{ reason }}</h3>
+    <br/>
+    <br/>
+    <button class="btn btn-lg custom_btn_design" type="button" value="Back" id="bck"><i class="gg gg-push-left"></i> &nbsp;Back</button>
+
+    <!--Footer -->
+    {% if include_nav %}
+        <div id="footer">
+          {% block footer %}
+                &copy; Copyright 2010 by <a href="http://domain.invalid/">Sanidhya Sharma</a>.
+          {% endblock %}
+        </div>
+    {% endif %}
+
+    <script>
+        // Event Listener for clear button
+        document.getElementById("bck").addEventListener("click",
+            ()=>{
+                window.location.href="/navigation"
+            },
+            true
+        );
+    </script>
+
+{% endblock %}
