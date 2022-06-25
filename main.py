@@ -13,6 +13,7 @@ from logging import Formatter
 
 # Image processing imports
 from PIL import Image
+import base64
 
 # DS imports
 import numpy as np
@@ -162,9 +163,10 @@ def before_first_request():
 def get_keys():
     # POST request
     if request.method == 'GET':
+
         keys = {
-            'x-api-key': appKey,
-            'temp-key': tempKey
+            'x-api-key': dlpckg.encoder(appKey),
+            'temp-key': dlpckg.encoder(tempKey)
         }
     return jsonify(keys)
 

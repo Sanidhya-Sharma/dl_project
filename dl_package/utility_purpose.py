@@ -4,7 +4,6 @@ import base64
 import hashlib
 import random
 
-
 def create_saved_folder(parent_directory):
     """
     This function is used to create "saved" folder in the current working directory given sa the input to the function
@@ -99,3 +98,14 @@ def get_app_key(loc :str):
         key = apikey.read().replace('\n', '')
     return key
 
+def encoder(key):
+    """
+    This function is used to provide base64 encrypting for an input string
+    :param key : (Str) any input string
+    :return: (Str) base64 encrypted key
+    """
+    input_key = key
+    utf8_key = input_key.encode("utf-8")
+    encoded = base64.b64encode(utf8_key)
+    encoded_utf8_key = encoded.decode("utf-8")
+    return encoded_utf8_key

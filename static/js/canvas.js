@@ -87,8 +87,12 @@
         }).done( function(json) {
 
             // Storing keys
-            var apiKey = json["x-api-key"]
-            var tempKey = json["temp-key"]
+            var recieved_apiKey = json["x-api-key"]
+            var recieved_tempKey = json["temp-key"]
+
+            // Dycrpting
+            let apiKey = window.atob(recieved_apiKey)
+            let tempKey = window.atob(recieved_tempKey)
 
             // Calling global setup for AJAX Headers and CSRF
             Ajax_global_setup(apiKey, tempKey)
@@ -608,7 +612,6 @@
                 // Positive response message
                 // alert("Successfully Saved the image ")
                 // console.log(response.data)
-
 
                 // Recieving the Deep Learning response and adding it to h2 tag
                 let headingDiv = document.getElementById("prediction_tag");
