@@ -74,13 +74,16 @@
 
     }
 
-    // Getting the Credentials
+    // Synchonus AJAX Getting the Credentials
     function key_call(){
 
        var rt = $.ajax({
             url: "/keyValuesCalls",
             type: 'GET',
+            contentType: "application/json",
             dataType: 'json',
+            cache: false,
+            async: false,
         }).done( function(json) {
 
             // Storing keys
@@ -90,7 +93,9 @@
             // Calling global setup for AJAX Headers and CSRF
             Ajax_global_setup(apiKey, tempKey)
 
-        }).fail( function(data) {
+        })
+
+        rt.fail( function(data) {
             alert("Security initialization failed !")
         });
 
@@ -594,6 +599,8 @@
           url: "/result",
           data: JSON.stringify(image_post),
           contentType: "application/json",
+          cache: false,
+          async: true,
           dataType: 'json',
             // Success
             success: function(response) {
@@ -620,6 +627,12 @@
                     // Notification Repeat Fix
                     clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
 
+                }
+                // Auth Error
+                else if(response.code == "401"){
+
+                    window.location = response.redirect_url;
+
                 }else {
                     headingDiv.innerHTML = "<h4> Deep Learning Predicts :<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h1 class='responce_dl'>" + response.data + "<h1></div>";
                     $.notify(`Prediction Successful`, "success");
@@ -638,6 +651,8 @@
                     msg = 'Requested page not found. [404]';
                 } else if (jqXHR.status == 500) {
                     msg = 'Internal Server Error [500].';
+                } else if (jqXHR.status == 400) {
+                    msg = 'CSRF Tocken Missmatch \n CSRF Tokens Expired Please Refresh !.';
                 } else if (exception === 'parsererror') {
                     msg = 'Requested JSON parse failed.';
                 } else if (exception === 'timeout') {
@@ -655,7 +670,62 @@
 
                 // alert(msg)
                 // alert("Some Error")
-                $.notify(`Hmm Somthings not Fine here \n Looks like there is ${response.data}`, "error");
+
+                // Check if status is 400 for CSRF token to apply custom message
+                if(jqXHR.status == 400){
+
+                    //Custom message with a refresh button
+                    $(function() {
+
+                        //add a new style 'foo'
+                        $.notify.addStyle('error401Style', {
+                          html:
+                            "<div>" +
+                              "<div class='clearfix'>" +
+                                "<div class='title' data-notify-html='title'/>" +
+                                "<div class='buttons' align='center'>" +
+                                  "<button id='Refresh' class='Refresh custom_btn_design'>&nbsp;<i class='gg-redo'></i></button>" +
+                                "</div>" +
+                              "</div>" +
+                            "</div>"
+                        });
+
+                        //listen for click events from this style
+                        // .notifyjs-foo-base .Refresh --> #Refresh
+                        $(document).on('click', '#Refresh', function(e) {
+
+                            //programmatically trigger propogating hide event
+                            $(this).trigger('notify-hide');
+
+                            // Clear aborted
+                            $.notify(`Refreshing !`, "warning");
+
+                            clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
+
+                            // Refresh
+                            location.reload();
+                        });
+
+                        $.notify({
+                          title: ""+msg+"",
+                          button: 'Yes'
+                        }, {
+                          style: 'error401Style',
+                          autoHide: false,
+                          clickToHide: false,
+                          autoHideDelay: 10000,
+                          showAnimation: "fadeIn",
+                          hideAnimation: "fadeOut",
+                          hideDuration: 700,
+                          arrowShow: false,
+                          className: "success",
+                        });
+
+                    });
+
+                }else{
+                    $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
+                }
 
                 // Notification Repeat Fix
                 clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
@@ -673,6 +743,8 @@
           url: "/dl_initialization",
           data: JSON.stringify(""),
           contentType: "application/json",
+          cache: false,
+          async: true,
           dataType: 'json',
             // Success
             success: function(response) {
@@ -686,7 +758,14 @@
                     // Notification Repeat Fix
                     clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
 
+                }
+                // Auth Error
+                else if(response.code == "401"){
+
+                    window.location = response.redirect_url;
+
                 }else{
+
                     $.notify(`${response.data}`, "error");
 
                     // Notification Repeat Fix

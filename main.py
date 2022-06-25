@@ -4,8 +4,7 @@ import os
 from functools import wraps
 
 # CSRF
-from flask_wtf.csrf import CSRFProtect
-from flask_wtf.csrf import CSRFError
+from flask_wtf.csrf import CSRFProtect, CSRFError
 
 # Logging
 import logging
@@ -32,7 +31,10 @@ context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 context.load_cert_chain('creds/ssl/cert.pem', 'creds/ssl/key.pem')
 
 # Initialize app
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='static', template_folder="templates")
+
+# Token expire after 1 min
+app.config['WTF_CSRF_TIME_LIMIT'] = 60
 
 # Initialize CSRF
 csrf = CSRFProtect(app)
@@ -74,6 +76,7 @@ def require_appkey_tempKey(view_function):
             abort(401)
 
     return decorated_function
+
 
 # Providing static folder
 @app.route('/<path:filename>')
@@ -154,18 +157,6 @@ def before_first_request():
     global appKey
     appKey = key
 
-
-# @app.before_request
-# def header_check():
-#     headers = request.headers
-#     print(headers)
-#     pass
-#
-# @app.after_request
-# def after_request_check():
-#     pass
-#     # we have a response to manipulate, always return one
-#     return response
 
 @app.route("/keyValuesCalls", methods=["GET"])
 def get_keys():
@@ -253,7 +244,7 @@ def dl_initialization():
             # returning prediction via AJAX
             resp = jsonify(success=True, status=200, data=str("Deep Learning Models initialized"))
 
-            return resp
+            return resp, 200
 
         except Exception as e:
 
@@ -263,7 +254,7 @@ def dl_initialization():
             # returning prediction via AJAX
             resp = jsonify(success=False, status=500, data=str("Deep Learning Models unable to initialize"))
 
-            return resp
+            return resp, 500
 
 # Deep learning Results Endpoint
 @app.route("/result", methods=["GET", "POST"])
@@ -337,7 +328,7 @@ def result():
             # Logs
             app.logger.info("Prediction Result ran OK")
 
-            return resp
+            return resp, 200
 
         except Exception as e:
 
@@ -346,7 +337,61 @@ def result():
             # Logs
             app.logger.error("Prediction Result Failed with error : "+str(e)+"")
 
-            return resp
+            return resp, 404
+
+# CSRF Error route
+@app.route("/errorCSRF", methods=["GET"])
+def csrf_error():
+    if request.method == 'GET':
+        # Logs
+        app.logger.info("Shown the CSRF Error Page")
+
+        # Location of the image in static folder
+        full_filename_image = os.path.join(app.config['UPLOAD_FOLDER'], 'hacker.png')
+
+        description = "The CSRF Tokens don't match"
+
+        return render_template('errorCSRF.html', reason=description, hacker_img=full_filename_image)
+
+# Error 404 route
+@app.route("/error401", methods=["GET"])
+def not_found_error():
+    if request.method == 'GET':
+        # Logs
+        app.logger.info("Shown the Error 404 Page")
+
+        return render_template('error401.html'), 401
+
+
+@app.before_request
+def header_check():
+    if request.method == 'POST':
+        # Check Headers for Temp key and API key
+        if 'temp-key' and "x-api-key" in request.headers:
+
+            # Getting API and Temp keys
+            check_appKey = request.headers['x-api-key']
+            check_tempKey = request.headers['temp-key']
+
+            # URL BreakDown
+            base_url = request.headers["Referer"].rsplit('/', 1)[0]
+            endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
+
+            # Check and redirect if failed
+            if check_tempKey==tempKey and check_appKey==appKey:
+                # Logs
+                app.logger.info("before Request Dual Key verified")
+            else:
+                # Logs
+                app.logger.warn("before Request Dual Key not verified")
+                return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
+
+# @app.after_request
+# def after_request_check():
+#     pass
+#     # we have a response to manipulate, always return one
+#     return response
+
 
 # CSRF ERROR PAGE
 @app.errorhandler(CSRFError)
@@ -354,13 +399,15 @@ def handle_csrf_error(e):
     # Logs
     app.logger.error("CSRF ERROR : "+str(e)+" ")
 
-    # flag for navbar
-    include_nav = True
-
-    # Flag for footer
-    include_footer = True
-
     # Location of the image in static folder
     full_filename_image = os.path.join(app.config['UPLOAD_FOLDER'], 'hacker.png')
 
     return render_template('errorCSRF.html', reason=e.description, hacker_img=full_filename_image), 400
+
+# CSRF ERROR PAGE
+@app.errorhandler(401)
+def handle_csrf_error(e):
+    # Logs
+    app.logger.error("Shown the Error 401 Page : "+str(e)+" ")
+
+    return render_template('error401.html'), 401
