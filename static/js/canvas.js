@@ -672,60 +672,62 @@
                 // alert("Some Error")
 
                 // Check if status is 400 for CSRF token to apply custom message
-                if(jqXHR.status == 400){
+                // if(jqXHR.status == 400){
+                //
+                //     //Custom message with a refresh button
+                //     $(function() {
+                //
+                //         //add a new style 'foo'
+                //         $.notify.addStyle('error401Style', {
+                //           html:
+                //             "<div>" +
+                //               "<div class='clearfix'>" +
+                //                 "<div class='title' data-notify-html='title'/>" +
+                //                 "<div class='buttons' align='center'>" +
+                //                   "<button id='Refresh' class='Refresh custom_btn_design'>&nbsp;<i class='gg-redo'></i></button>" +
+                //                 "</div>" +
+                //               "</div>" +
+                //             "</div>"
+                //         });
+                //
+                //         //listen for click events from this style
+                //         // .notifyjs-foo-base .Refresh --> #Refresh
+                //         $(document).on('click', '#Refresh', function(e) {
+                //
+                //             //programmatically trigger propogating hide event
+                //             $(this).trigger('notify-hide');
+                //
+                //             // Clear aborted
+                //             $.notify(`Refreshing !`, "warning");
+                //
+                //             clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
+                //
+                //             // Refresh
+                //             location.reload();
+                //         });
+                //
+                //         $.notify({
+                //           title: ""+msg+"",
+                //           button: 'Yes'
+                //         }, {
+                //           style: 'error401Style',
+                //           autoHide: false,
+                //           clickToHide: false,
+                //           autoHideDelay: 10000,
+                //           showAnimation: "fadeIn",
+                //           hideAnimation: "fadeOut",
+                //           hideDuration: 700,
+                //           arrowShow: false,
+                //           className: "success",
+                //         });
+                //
+                //     });
+                //
+                // }else{
+                //     $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
+                // }
 
-                    //Custom message with a refresh button
-                    $(function() {
-
-                        //add a new style 'foo'
-                        $.notify.addStyle('error401Style', {
-                          html:
-                            "<div>" +
-                              "<div class='clearfix'>" +
-                                "<div class='title' data-notify-html='title'/>" +
-                                "<div class='buttons' align='center'>" +
-                                  "<button id='Refresh' class='Refresh custom_btn_design'>&nbsp;<i class='gg-redo'></i></button>" +
-                                "</div>" +
-                              "</div>" +
-                            "</div>"
-                        });
-
-                        //listen for click events from this style
-                        // .notifyjs-foo-base .Refresh --> #Refresh
-                        $(document).on('click', '#Refresh', function(e) {
-
-                            //programmatically trigger propogating hide event
-                            $(this).trigger('notify-hide');
-
-                            // Clear aborted
-                            $.notify(`Refreshing !`, "warning");
-
-                            clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
-
-                            // Refresh
-                            location.reload();
-                        });
-
-                        $.notify({
-                          title: ""+msg+"",
-                          button: 'Yes'
-                        }, {
-                          style: 'error401Style',
-                          autoHide: false,
-                          clickToHide: false,
-                          autoHideDelay: 10000,
-                          showAnimation: "fadeIn",
-                          hideAnimation: "fadeOut",
-                          hideDuration: 700,
-                          arrowShow: false,
-                          className: "success",
-                        });
-
-                    });
-
-                }else{
-                    $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
-                }
+                $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
 
                 // Notification Repeat Fix
                 clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
