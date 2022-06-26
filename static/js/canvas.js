@@ -688,7 +688,7 @@
                 // alert("Some Error")
 
                 // Check if status is 400 for CSRF token to apply custom message
-                if(jqXHR.status == 403){
+                if(jqXHR.responseJSON.code == "403"){
 
                     window.location = jqXHR.responseJSON.redirect_url;
 
