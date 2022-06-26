@@ -404,7 +404,7 @@ def header_check():
             else:
                 # Logs
                 app.logger.warn("before Request Dual Key not verified")
-                return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
+                return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False}), 401
 
 # @app.after_request
 # def after_request_check():
@@ -421,10 +421,3 @@ def handle_csrf_error(e):
 
     return jsonify({"data": "Failed CSRF Security Authorization", "code": "403", "redirect_url": ""+url_for("csrf_error")+"", 'success': False}), 403
 
-# CSRF ERROR PAGE
-@app.errorhandler(401)
-def handle_csrf_error(e):
-    # Logs
-    app.logger.error("Shown the Error 401 Page : "+str(e)+" ")
-
-    return render_template('error401.html'), 401
