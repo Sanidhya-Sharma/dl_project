@@ -8,9 +8,6 @@
   {{ super() }}
     <link href="{{url_for('static', filename='css/canvas.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/canvas_notify.css')}}" rel="stylesheet">
-     <script type="text/javascript">
-         var csrf_token = "{{ csrf_token() }}"
-     </script>
 {% endblock %}
 
 {% block content %}

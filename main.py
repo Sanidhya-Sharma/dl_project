@@ -35,7 +35,7 @@ context.load_cert_chain('creds/ssl/cert.pem', 'creds/ssl/key.pem')
 app = Flask(__name__, static_folder='static', template_folder="templates")
 
 # Token expire after 1 min
-# app.config['WTF_CSRF_TIME_LIMIT'] = 30
+app.config['WTF_CSRF_TIME_LIMIT'] = 60
 
 # Initialize CSRF
 csrf = CSRFProtect(app)
@@ -66,15 +66,28 @@ def require_appkey_tempKey(view_function):
         # storing in key
         key = dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key")
 
+        # Storing the received keys in header
+        recieved_api_key = request.headers.get('x-api-key')
+        recieved_temp_key = request.headers.get('temp-key')
+
+        # Decode the base64
+        decoded_api_key = dlpckg.base64_decoder(recieved_api_key)
+        decoded_temp_key = dlpckg.base64_decoder(recieved_temp_key)
+
+        # URL BreakDown
+        origin_url = request.headers["Origin"]
+        base_url = request.headers["Referer"].rsplit('/', 1)[0]
+        endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
+
         # Check if the input x-api-key matches the apiKey
-        #if request.args.get('key') and request.args.get('key') == key:
+        # if request.args.get('key') and request.args.get('key') == key:
         # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
-        if request.headers.get('temp-key') == tempKey and request.headers.get('x-api-key') == key:
+        if decoded_temp_key == tempKey and decoded_api_key == key:
             app.logger.info("Dual keys Verified")
             return view_function(*args, **kwargs)
         else:
             app.logger.error("Dual keys Verification failed")
-            abort(401)
+            return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
 
     return decorated_function
 
@@ -165,8 +178,8 @@ def get_keys():
     if request.method == 'GET':
 
         keys = {
-            'x-api-key': dlpckg.encoder(appKey),
-            'temp-key': dlpckg.encoder(tempKey)
+            'x-api-key': dlpckg.base64_encoder(appKey),
+            'temp-key': dlpckg.base64_encoder(tempKey)
         }
     return jsonify(keys)
 
@@ -372,15 +385,20 @@ def header_check():
         if 'temp-key' and "x-api-key" in request.headers:
 
             # Getting API and Temp keys
-            check_appKey = request.headers['x-api-key']
-            check_tempKey = request.headers['temp-key']
+            header_check_appKey = request.headers['x-api-key']
+            header_check_tempKey = request.headers['temp-key']
+
+            # Decoding the keys (bas64 --> ASCII)
+            check_appKey = dlpckg.base64_decoder(header_check_appKey)
+            check_tempKey = dlpckg.base64_decoder(header_check_tempKey)
 
             # URL BreakDown
+            origin_url = request.headers["Origin"]
             base_url = request.headers["Referer"].rsplit('/', 1)[0]
             endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
 
             # Check and redirect if failed
-            if check_tempKey==tempKey and check_appKey==appKey:
+            if check_tempKey == tempKey and check_appKey == appKey:
                 # Logs
                 app.logger.info("before Request Dual Key verified")
             else:

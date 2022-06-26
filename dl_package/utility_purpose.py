@@ -98,7 +98,7 @@ def get_app_key(loc :str):
         key = apikey.read().replace('\n', '')
     return key
 
-def encoder(key):
+def base64_encoder(key):
     """
     This function is used to provide base64 encrypting for an input string
     :param key : (Str) any input string
@@ -109,3 +109,14 @@ def encoder(key):
     encoded = base64.b64encode(utf8_key)
     encoded_utf8_key = encoded.decode("utf-8")
     return encoded_utf8_key
+
+def base64_decoder(key):
+    """
+    This function is used to provide base64 decryption for an input string
+    :param key : (Str) any input string base64
+    :return: (Str) base64 decrypted key
+    """
+    input_key = bytes(key, 'UTF-8')
+    decoded = base64.b64decode(input_key)
+    decoded_utf8_key = decoded.decode("utf-8")
+    return decoded_utf8_key

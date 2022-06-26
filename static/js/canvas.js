@@ -42,7 +42,7 @@
         })
 
         // Console Clear after some time
-        clear_console(500)
+        // clear_console(500)
 
         // Dev message
         my_message()
@@ -90,33 +90,44 @@
             var recieved_apiKey = json["x-api-key"]
             var recieved_tempKey = json["temp-key"]
 
-            // Dycrpting
-            let apiKey = window.atob(recieved_apiKey)
-            let tempKey = window.atob(recieved_tempKey)
+            // Decrypting base64
+            let org_apiKey = window.atob(recieved_apiKey)
+            let org_tempKey = window.atob(recieved_tempKey)
+
+            // Encrypt base64
+            let apiKey = window.btoa(org_apiKey)
+            let tempKey = window.btoa(org_tempKey)
+
+            // let csrfToken = document.getElementsByName('csrf-token');
+            let csrfToken = document.head.querySelector("meta[name~=csrf-token][content]").content;
 
             // Calling global setup for AJAX Headers and CSRF
-            Ajax_global_setup(apiKey, tempKey)
+            Ajax_global_setup(apiKey, tempKey, csrfToken)
 
         })
 
         rt.fail( function(data) {
-            alert("Security initialization failed !")
+            // alert("Please Draw Something on the canvas")
+            $.notify(`Please Draw Something on the canvas`, "error");
+
+            // Notification Repeat Fix
+            clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
         });
 
     }
 
     // Global Ajax Setup
-    function Ajax_global_setup(apiKey, tempKey) {
+    function Ajax_global_setup(ApiKey, TempKey, CSRF) {
         // Setting global headers for AJAX request
         $.ajaxSetup({
             // CSRF Security
             beforeSend: function(xhr, settings) {
                 if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
                 }
             },
             // API Key
-            headers: { 'x-api-key': apiKey, 'temp-key': tempKey}
+            headers: { 'x-api-key': ApiKey, 'temp-key': TempKey}
         });
 
         // Initialize Deep Learning model (It needs the Security)
@@ -675,62 +686,62 @@
                 // alert("Some Error")
 
                 // Check if status is 400 for CSRF token to apply custom message
-                // if(jqXHR.status == 400){
-                //
-                //     //Custom message with a refresh button
-                //     $(function() {
-                //
-                //         //add a new style 'foo'
-                //         $.notify.addStyle('error401Style', {
-                //           html:
-                //             "<div>" +
-                //               "<div class='clearfix'>" +
-                //                 "<div class='title' data-notify-html='title'/>" +
-                //                 "<div class='buttons' align='center'>" +
-                //                   "<button id='Refresh' class='Refresh custom_btn_design'>&nbsp;<i class='gg-redo'></i></button>" +
-                //                 "</div>" +
-                //               "</div>" +
-                //             "</div>"
-                //         });
-                //
-                //         //listen for click events from this style
-                //         // .notifyjs-foo-base .Refresh --> #Refresh
-                //         $(document).on('click', '#Refresh', function(e) {
-                //
-                //             //programmatically trigger propogating hide event
-                //             $(this).trigger('notify-hide');
-                //
-                //             // Clear aborted
-                //             $.notify(`Refreshing !`, "warning");
-                //
-                //             clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
-                //
-                //             // Refresh
-                //             location.reload();
-                //         });
-                //
-                //         $.notify({
-                //           title: ""+msg+"",
-                //           button: 'Yes'
-                //         }, {
-                //           style: 'error401Style',
-                //           autoHide: false,
-                //           clickToHide: false,
-                //           autoHideDelay: 10000,
-                //           showAnimation: "fadeIn",
-                //           hideAnimation: "fadeOut",
-                //           hideDuration: 700,
-                //           arrowShow: false,
-                //           className: "success",
-                //         });
-                //
-                //     });
-                //
-                // }else{
-                //     $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
-                // }
+                if(jqXHR.status == 400){
 
-                $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
+                    //Custom message with a refresh button
+                    $(function() {
+
+                        //add a new style 'foo'
+                        $.notify.addStyle('foo', {
+                          html:
+                            "<div>" +
+                              "<div class='clearfix'>" +
+                                "<div class='title' data-notify-html='title'/>" +
+                                "<div class='buttons' align='center'>" +
+                                  "<button id='Refresh' class='Refresh custom_btn_design'>&nbsp;<i class='gg-redo'></i></button>" +
+                                "</div>" +
+                              "</div>" +
+                            "</div>"
+                        });
+
+                        //listen for click events from this style
+                        // .notifyjs-foo-base .Refresh --> #Refresh
+                        $(document).on('click', '#Refresh', function(e) {
+
+                            //programmatically trigger propogating hide event
+                            $(this).trigger('notify-hide');
+
+                            // Clear aborted
+                            $.notify(`Refreshing !`, "warning");
+
+                            clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
+
+                            // Refresh
+                            location.reload();
+                        });
+
+                        $.notify({
+                          title: ""+msg+"",
+                          button: 'Yes'
+                        }, {
+                          style: 'foo',
+                          autoHide: false,
+                          clickToHide: false,
+                          autoHideDelay: 10000,
+                          showAnimation: "fadeIn",
+                          hideAnimation: "fadeOut",
+                          hideDuration: 700,
+                          arrowShow: false,
+                          className: "success",
+                        });
+
+                    });
+
+                }else{
+                    $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
+                }
+
+                // $.notify(`Hmm Somthings not Fine here \n Looks like there is : ${msg}`, "error");
 
                 // Notification Repeat Fix
                 clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
