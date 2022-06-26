@@ -406,12 +406,17 @@ def header_check():
                 app.logger.warn("before Request Dual Key not verified")
                 return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False}), 401
 
-# @app.after_request
-# def after_request_check():
-#     pass
-#     # we have a response to manipulate, always return one
-#     return response
-
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
 
 # CSRF ERROR PAGE
 @app.errorhandler(CSRFError)
