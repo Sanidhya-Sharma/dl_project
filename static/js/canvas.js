@@ -42,7 +42,7 @@
         })
 
         // Console Clear after some time
-        // clear_console(500)
+        clear_console(500)
 
         // Dev message
         my_message()
@@ -666,7 +666,9 @@
                 } else if (jqXHR.status == 500) {
                     msg = 'Internal Server Error [500].';
                 } else if (jqXHR.status == 400) {
-                    msg = 'CSRF Tocken Missmatch \n CSRF Tokens Expired Please Refresh !.';
+                    msg = 'Bad Request';
+                } else if (jqXHR.status == 403) {
+                    msg = 'Forbidden Request';
                 } else if (exception === 'parsererror') {
                     msg = 'Requested JSON parse failed.';
                 } else if (exception === 'timeout') {
@@ -686,7 +688,9 @@
                 // alert("Some Error")
 
                 // Check if status is 400 for CSRF token to apply custom message
-                if(jqXHR.status == 400){
+                if(jqXHR.status == 403){
+
+                    window.location = jqXHR.responseJSON.redirect_url;
 
                     //Custom message with a refresh button
                     $(function() {
@@ -721,7 +725,7 @@
                         });
 
                         $.notify({
-                          title: ""+msg+"",
+                          title: "CSRF Token Mismatch \n Tokens Expired Please Refresh !.",
                           button: 'Yes'
                         }, {
                           style: 'foo',

@@ -419,10 +419,7 @@ def handle_csrf_error(e):
     # Logs
     app.logger.error("CSRF ERROR : "+str(e)+" ")
 
-    # Location of the image in static folder
-    full_filename_image = os.path.join(app.config['UPLOAD_FOLDER'], 'hacker.png')
-
-    return render_template('errorCSRF.html', reason=e.description, hacker_img=full_filename_image), 400
+    return jsonify({"data": "Failed CSRF Security Authorization", "code": "403", "redirect_url": ""+url_for("csrf_error")+"", 'success': False}), 403
 
 # CSRF ERROR PAGE
 @app.errorhandler(401)
