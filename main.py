@@ -34,8 +34,8 @@ context.load_cert_chain('creds/ssl/cert.pem', 'creds/ssl/key.pem')
 # Initialize app
 app = Flask(__name__, static_folder='static', template_folder="templates")
 
-# Token expire after 1 min
-app.config['WTF_CSRF_TIME_LIMIT'] = 60
+# Token expire after 5 min
+app.config['WTF_CSRF_TIME_LIMIT'] = 300
 
 # Initialize CSRF
 csrf = CSRFProtect(app)
