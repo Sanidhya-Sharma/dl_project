@@ -49,6 +49,28 @@
 
     };
 
+    // Cookie CSRF Functions
+    function setCookie(name,value,days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+
     // sleep
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -99,7 +121,8 @@
             let tempKey = window.btoa(org_tempKey)
 
             // let csrfToken = document.getElementsByName('csrf-token');
-            let csrfToken = document.head.querySelector("meta[name~=csrf-token][content]").content;
+            // let csrfToken = document.head.querySelector("meta[name~=csrf-token][content]").content;
+            let csrfToken = getCookie('csrf_token');
 
             // Calling global setup for AJAX Headers and CSRF
             Ajax_global_setup(apiKey, tempKey, csrfToken)
@@ -117,7 +140,7 @@
     }
 
     // Global Ajax Setup
-    function Ajax_global_setup(ApiKey, TempKey, CSRF) {
+    function Ajax_global_setup(ApiKey, TempKey, CSRF= getCookie('csrf_token')) {
         // Setting global headers for AJAX request
         $.ajaxSetup({
             // CSRF Security
@@ -126,12 +149,28 @@
                     xhr.setRequestHeader("X-CSRFToken", CSRF);
                 }
             },
+            mode: 'same-origin',
             // API Key
             headers: { 'x-api-key': ApiKey, 'temp-key': TempKey}
         });
 
         // Initialize Deep Learning model (It needs the Security)
         dl_initialization()
+    };
+
+    function RefreshAjaxHeaders(CSRF= getCookie('csrf_token')){
+
+        // Setting global headers for AJAX request
+        $.ajaxSetup({
+            // CSRF Security
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                }
+            },
+            mode: 'same-origin',
+        });
+
     };
 
     // Disable the right click context menu, F12, cntrl+I to inspect and various other interactions
@@ -608,6 +647,9 @@
             "architecture" : requested_architecture
         }
 
+        // Refreshing headers
+        RefreshAjaxHeaders()
+
         // AJAX POST call
         $.ajax({
           type: "POST",
@@ -754,7 +796,7 @@
     }
 
 
-    // Posting to the backend endpoint for initilaization of deep learning models
+    // Posting to the backend endpoint for initialaization of deep learning models
     function dl_initialization(){
 
         // AJAX POST call
@@ -764,8 +806,9 @@
           data: JSON.stringify(""),
           contentType: "application/json",
           cache: false,
-          async: true,
+          async: false,
           dataType: 'json',
+
             // Success
             success: function(response) {
 

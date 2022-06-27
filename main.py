@@ -1,10 +1,10 @@
 # Global Imports
-from flask import Flask, render_template, request, url_for, redirect, jsonify, abort, send_from_directory
+from flask import Flask, render_template, request, url_for, redirect, jsonify, send_from_directory, g, session
 import os
 from functools import wraps
 
 # CSRF
-from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_wtf.csrf import CSRFProtect, CSRFError, generate_csrf
 
 # Logging
 import logging
@@ -36,6 +36,11 @@ app = Flask(__name__, static_folder='static', template_folder="templates")
 
 # Token expire after 5 min
 app.config['WTF_CSRF_TIME_LIMIT'] = 300
+
+# Reload CSS and JS files and Not cache them
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# app.config['SERVER_NAME'] = os.environ['MY_SERVER_NAME']
 
 # Initialize CSRF
 csrf = CSRFProtect(app)
@@ -381,42 +386,36 @@ def not_found_error():
 @app.before_request
 def header_check():
     if request.method == 'POST':
-        # Check Headers for Temp key and API key
-        if 'temp-key' and "x-api-key" in request.headers:
 
-            # Getting API and Temp keys
-            header_check_appKey = request.headers['x-api-key']
-            header_check_tempKey = request.headers['temp-key']
+        # URL BreakDown
+        origin_url = request.headers["Origin"]
+        base_url = request.headers["Referer"].rsplit('/', 1)[0]
+        endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
 
-            # Decoding the keys (bas64 --> ASCII)
-            check_appKey = dlpckg.base64_decoder(header_check_appKey)
-            check_tempKey = dlpckg.base64_decoder(header_check_tempKey)
+        if request.cookies.get('csrf_token') == request.headers["X-CSRFToken"]:
+            app.logger.info("before Request CSRF verified")
+        else:
+            # Logs
+            app.logger.warn("before Request CSRF not verified")
 
-            # URL BreakDown
-            origin_url = request.headers["Origin"]
-            base_url = request.headers["Referer"].rsplit('/', 1)[0]
-            endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
-
-            # Check and redirect if failed
-            if check_tempKey == tempKey and check_appKey == appKey:
-                # Logs
-                app.logger.info("before Request Dual Key verified")
-            else:
-                # Logs
-                app.logger.warn("before Request Dual Key not verified")
-                return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False}), 401
+            return jsonify({"data": "Failed CSRF Authorization", "code": "403", "redirect_url": ""+base_url+""+url_for("csrf_error")+"", 'success': False}), 403
 
 @app.after_request
-def add_header(r):
+def add_header(response):
     """
     Add headers to both force latest IE rendering engine or Chrome Frame,
     and also to cache the rendered page for 10 minutes.
     """
-    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    r.headers["Pragma"] = "no-cache"
-    r.headers["Expires"] = "0"
-    r.headers['Cache-Control'] = 'public, max-age=0'
-    return r
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    response.headers['Cache-Control'] = 'public, max-age=0'
+
+    # Inject new CSRF in cookie
+    response.set_cookie('csrf_token', generate_csrf())
+
+    return response
+
 
 # CSRF ERROR PAGE
 @app.errorhandler(CSRFError)
