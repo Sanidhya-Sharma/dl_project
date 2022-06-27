@@ -683,12 +683,6 @@
                     // Notification Repeat Fix
                     clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
 
-                }
-                // Auth Error
-                else if(response.code == "401"){
-
-                    window.location = response.redirect_url;
-
                 }else {
                     headingDiv.innerHTML = "<h4> Deep Learning Predicts :<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h1 class='responce_dl'>" + response.data + "<h1></div>";
                     $.notify(`Prediction Successful`, "success");
