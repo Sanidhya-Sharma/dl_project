@@ -47,8 +47,8 @@ csrf = CSRFProtect(app)
 csrf.init_app(app)
 
 # Temp key
-global appKey
-global tempKey
+appKey = None
+tempKey = None
 
 # Custom Key for CSRF
 app.config.update(dict(
@@ -84,11 +84,21 @@ def require_appkey_tempKey(view_function):
         base_url = request.headers["Referer"].rsplit('/', 1)[0]
         endpoint_url = request.headers["Referer"].rsplit('/', 1)[1]
 
+        # Global Variables
+        global appKey
+        global tempKey
+
         # Check if the input x-api-key matches the apiKey
         # if request.args.get('key') and request.args.get('key') == key:
         # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
         if decoded_temp_key == tempKey and decoded_api_key == key:
             app.logger.info("Dual keys Verified")
+
+            # I had to do this
+            if appKey and tempKey is not None:
+                appKey = decoded_api_key
+                tempKey = decoded_temp_key
+
             return view_function(*args, **kwargs)
         else:
             app.logger.error("Dual keys Verification failed")
