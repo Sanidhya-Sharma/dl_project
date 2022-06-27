@@ -157,8 +157,9 @@
         // Initialize Deep Learning model (It needs the Security)
         dl_initialization()
     };
-
-    function RefreshAjaxHeaders(CSRF= getCookie('csrf_token')){
+    
+    // Refresh CSRF and Keys
+    function RefreshAjaxHeaders(ApiKey= getCookie('ak'), TempKey= getCookie('tk'), CSRF= getCookie('csrf_token')){
 
         // Setting global headers for AJAX request
         $.ajaxSetup({
@@ -169,6 +170,8 @@
                 }
             },
             mode: 'same-origin',
+            // API Key
+            headers: { 'x-api-key': ApiKey, 'temp-key': TempKey}
         });
 
     };

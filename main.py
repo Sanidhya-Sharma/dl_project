@@ -416,6 +416,10 @@ def add_header(response):
     # Inject new CSRF in cookie
     response.set_cookie('csrf_token', generate_csrf())
 
+    # Sending Keys
+    response.set_cookie('ak', dlpckg.base64_encoder(appKey))
+    response.set_cookie('tk', dlpckg.base64_encoder(tempKey))
+
     return response
 
 
