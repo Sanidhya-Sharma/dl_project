@@ -241,6 +241,7 @@ def canvas():
 
 # Canvas Page
 @app.route("/dl_initialization", methods=["GET", "POST"])
+@csrf.exempt
 @require_appkey_tempKey
 def dl_initialization():
 
@@ -278,6 +279,7 @@ def dl_initialization():
 
 # Deep learning Results Endpoint
 @app.route("/result", methods=["GET", "POST"])
+@csrf.exempt
 @require_appkey_tempKey
 def result():
 
