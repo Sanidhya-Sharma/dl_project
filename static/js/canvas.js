@@ -157,7 +157,7 @@
         // Initialize Deep Learning model (It needs the Security)
         dl_initialization()
     };
-    
+
     // Refresh CSRF and Keys
     function RefreshAjaxHeaders(ApiKey= getCookie('ak'), TempKey= getCookie('tk'), CSRF= getCookie('csrf_token')){
 
@@ -660,7 +660,7 @@
           data: JSON.stringify(image_post),
           contentType: "application/json",
           cache: false,
-          async: true,
+          async: false,
           dataType: 'json',
             // Success
             success: function(response) {
