@@ -40,9 +40,8 @@ app.config['WTF_CSRF_TIME_LIMIT'] = 300
 # Reload CSS and JS files and Not cache them
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+# Setting cookie name
 app.config['SESSION_COOKIE_NAME'] = "session_name"
-
-# app.config['SERVER_NAME'] = os.environ['MY_SERVER_NAME']
 
 # Initialize CSRF
 csrf = CSRFProtect(app)
@@ -90,9 +89,6 @@ def require_appkey_tempKey(view_function):
         # Global Variables
         global appKey
         global tempKey
-
-        print("HEADER RECIEVED COOKIE", request.cookies.get("session_name"))
-        print("GLOBAL COOKIE", global_cookie)
 
         # Checking if the cookie is same or not
         if request.cookies.get("session_name") == global_cookie:
@@ -201,8 +197,9 @@ def before_first_request():
     appKey = key
 
     # Setting cookie
-    global global_cookie
-    global_cookie = request.cookies.get("session_name")
+    if request.cookies.get("session_name") != None:
+        global global_cookie
+        global_cookie = request.cookies.get("session_name")
 
 
 @app.route("/keyValuesCalls", methods=["GET"])
@@ -415,10 +412,11 @@ def not_found_error():
 
 @app.before_request
 def header_check():
-    
+
     # Setting cookie
-    global global_cookie
-    global_cookie = request.cookies.get("session_name")
+    if request.cookies.get("session_name") != None:
+        global global_cookie
+        global_cookie = request.cookies.get("session_name")
 
     if request.method == 'POST':
 
@@ -454,9 +452,10 @@ def add_header(response):
     response.set_cookie('tk', dlpckg.base64_encoder(tempKey))
 
     # Sending Session name
-    response.set_cookie('session_name', request.cookies.get("session_name"))
-    global global_cookie
-    global_cookie = response.set_cookie('session_name', request.cookies.get("session_name"))
+    if request.cookies.get("session_name") != None:
+        response.set_cookie('session_name', request.cookies.get("session_name"))
+        global global_cookie
+        global_cookie = response.set_cookie('session_name', request.cookies.get("session_name"))
 
     return response
 

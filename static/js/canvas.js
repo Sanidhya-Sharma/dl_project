@@ -42,7 +42,7 @@
         })
 
         // Console Clear after some time
-        // clear_console(500)
+        clear_console(500)
 
         // Dev message
         my_message()
