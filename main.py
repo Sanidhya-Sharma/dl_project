@@ -47,9 +47,8 @@ app.config['SESSION_COOKIE_NAME'] = "session_name"
 csrf = CSRFProtect(app)
 csrf.init_app(app)
 
-# Temp key
+# App Key
 appKey = None
-tempKey = None
 global_cookie = None
 
 # Custom Key for CSRF
@@ -63,9 +62,9 @@ PEOPLE_FOLDER = os.path.join('static', 'img')
 app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
 
 
-# CUSTOM WRAPPER (Dual Key)
+# CUSTOM WRAPPER
 # The actual decorator function for checking the api Key for require_appkey wrapper
-def require_appkey_tempKey(view_function):
+def require_appkey(view_function):
     @wraps(view_function)
     # the new, post-decoration function. Note *args and **kwargs here.
     def decorated_function(*args, **kwargs):
@@ -75,11 +74,9 @@ def require_appkey_tempKey(view_function):
 
         # Storing the received keys in header
         recieved_api_key = request.headers.get('x-api-key')
-        recieved_temp_key = request.headers.get('temp-key')
 
         # Decode the base64
         decoded_api_key = dlpckg.base64_decoder(recieved_api_key)
-        decoded_temp_key = dlpckg.base64_decoder(recieved_temp_key)
 
         # URL BreakDown
         origin_url = request.headers["Origin"]
@@ -88,7 +85,6 @@ def require_appkey_tempKey(view_function):
 
         # Global Variables
         global appKey
-        global tempKey
 
         # Checking if the cookie is same or not
         if request.cookies.get("session_name") == global_cookie:
@@ -96,21 +92,19 @@ def require_appkey_tempKey(view_function):
             # Check if the input x-api-key matches the apiKey
             # if request.args.get('key') and request.args.get('key') == key:
             # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
-            if decoded_temp_key == tempKey and decoded_api_key == key:
+            if decoded_api_key == key:
                 app.logger.info("Dual keys Verified")
 
                 # I had to do this
-                if appKey and tempKey is not None:
+                if appKey is not None:
                     appKey = decoded_api_key
-                    tempKey = decoded_temp_key
 
                 return view_function(*args, **kwargs)
             else:
-                app.logger.error("Dual keys Verification failed")
+                app.logger.error("keys Verification failed")
                 return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
 
         else:
-            print("failed")
             app.logger.error("Session Cookie Verification failed")
             return jsonify({"data": "Failed Session/Cookie Authorization", "code": "403", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
 
@@ -187,10 +181,6 @@ def before_first_request():
     # Logging
     app.logger.info("Logs Initialized")
 
-    # Global Super key
-    global tempKey
-    tempKey = dlpckg.generate_hash_key()
-
     # App key Setup
     key = dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key")
     global appKey
@@ -208,8 +198,7 @@ def get_keys():
     if request.method == 'GET':
 
         keys = {
-            'x-api-key': dlpckg.base64_encoder(appKey),
-            'temp-key': dlpckg.base64_encoder(tempKey)
+            'x-api-key': dlpckg.base64_encoder(appKey)
         }
     return jsonify(keys)
 
@@ -267,7 +256,7 @@ def canvas():
 # Canvas Page
 @app.route("/dl_initialization", methods=["GET", "POST"])
 @csrf.exempt
-@require_appkey_tempKey
+@require_appkey
 def dl_initialization():
 
     # GET request
@@ -305,7 +294,7 @@ def dl_initialization():
 # Deep learning Results Endpoint
 @app.route("/result", methods=["GET", "POST"])
 @csrf.exempt
-@require_appkey_tempKey
+@require_appkey
 def result():
 
     # GET request
@@ -449,7 +438,6 @@ def add_header(response):
 
     # Sending Keys
     response.set_cookie('ak', dlpckg.base64_encoder(appKey))
-    response.set_cookie('tk', dlpckg.base64_encoder(tempKey))
 
     # Sending Session name
     if request.cookies.get("session_name") != None:

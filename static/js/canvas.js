@@ -110,27 +110,24 @@
 
             // Storing keys
             var recieved_apiKey = json["x-api-key"]
-            var recieved_tempKey = json["temp-key"]
 
             // Decrypting base64
             let org_apiKey = window.atob(recieved_apiKey)
-            let org_tempKey = window.atob(recieved_tempKey)
 
             // Encrypt base64
             let apiKey = window.btoa(org_apiKey)
-            let tempKey = window.btoa(org_tempKey)
 
             // let csrfToken = document.getElementsByName('csrf-token');
             // let csrfToken = document.head.querySelector("meta[name~=csrf-token][content]").content;
             let csrfToken = getCookie('csrf_token');
 
             // Calling global setup for AJAX Headers and CSRF
-            Ajax_global_setup(apiKey, tempKey, csrfToken)
+            Ajax_global_setup(apiKey, csrfToken)
 
         }).fail( function(jqxhr) {
             // alert("Please Draw Something on the canvas")
             $.notify(`Please Draw Something on the canvas`, "error");
-            console.log("Failed")
+
             // Notification Repeat Fix
             clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
         });
@@ -138,7 +135,7 @@
     }
 
     // Global Ajax Setup
-    function Ajax_global_setup(ApiKey, TempKey, CSRF= getCookie('csrf_token')) {
+    function Ajax_global_setup(ApiKey, CSRF= getCookie('csrf_token')) {
         // Setting global headers for AJAX request
         $.ajaxSetup({
             // CSRF Security
@@ -149,7 +146,7 @@
             },
             mode: 'same-origin',
             // API Key
-            headers: { 'x-api-key': ApiKey, 'temp-key': TempKey}
+            headers: { 'x-api-key': ApiKey}
         });
 
         // Initialize Deep Learning model (It needs the Security)
@@ -157,7 +154,7 @@
     };
 
     // Refresh CSRF and Keys
-    function RefreshAjaxHeaders(ApiKey= getCookie('ak'), TempKey= getCookie('tk'), CSRF= getCookie('csrf_token')){
+    function RefreshAjaxHeaders(ApiKey= getCookie('ak'), CSRF= getCookie('csrf_token')){
 
         // Setting global headers for AJAX request
         $.ajaxSetup({
@@ -169,7 +166,7 @@
             },
             mode: 'same-origin',
             // API Key
-            headers: { 'x-api-key': ApiKey, 'temp-key': TempKey}
+            headers: { 'x-api-key': ApiKey}
         });
 
     };
