@@ -40,6 +40,8 @@ app.config['WTF_CSRF_TIME_LIMIT'] = 300
 # Reload CSS and JS files and Not cache them
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
+app.config['SESSION_COOKIE_NAME'] = "session_name"
+
 # app.config['SERVER_NAME'] = os.environ['MY_SERVER_NAME']
 
 # Initialize CSRF
@@ -49,6 +51,7 @@ csrf.init_app(app)
 # Temp key
 appKey = None
 tempKey = None
+global_cookie = None
 
 # Custom Key for CSRF
 app.config.update(dict(
@@ -88,21 +91,32 @@ def require_appkey_tempKey(view_function):
         global appKey
         global tempKey
 
-        # Check if the input x-api-key matches the apiKey
-        # if request.args.get('key') and request.args.get('key') == key:
-        # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
-        if decoded_temp_key == tempKey and decoded_api_key == key:
-            app.logger.info("Dual keys Verified")
+        print("HEADER RECIEVED COOKIE", request.cookies.get("session_name"))
+        print("GLOBAL COOKIE", global_cookie)
 
-            # I had to do this
-            if appKey and tempKey is not None:
-                appKey = decoded_api_key
-                tempKey = decoded_temp_key
+        # Checking if the cookie is same or not
+        if request.cookies.get("session_name") == global_cookie:
 
-            return view_function(*args, **kwargs)
+            # Check if the input x-api-key matches the apiKey
+            # if request.args.get('key') and request.args.get('key') == key:
+            # if request.headers.get('x-api-key') and request.headers.get('x-api-key') == key:
+            if decoded_temp_key == tempKey and decoded_api_key == key:
+                app.logger.info("Dual keys Verified")
+
+                # I had to do this
+                if appKey and tempKey is not None:
+                    appKey = decoded_api_key
+                    tempKey = decoded_temp_key
+
+                return view_function(*args, **kwargs)
+            else:
+                app.logger.error("Dual keys Verification failed")
+                return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
+
         else:
-            app.logger.error("Dual keys Verification failed")
-            return jsonify({"data": "Failed Key Authorization", "code": "401", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
+            print("failed")
+            app.logger.error("Session Cookie Verification failed")
+            return jsonify({"data": "Failed Session/Cookie Authorization", "code": "403", "redirect_url": ""+base_url+""+url_for("not_found_error")+"", 'success': False})
 
     return decorated_function
 
@@ -185,6 +199,10 @@ def before_first_request():
     key = dlpckg.get_app_key(loc=""+os.getcwd()+""+os.sep+"creds"+os.sep+"apikey"+os.sep+"api.key")
     global appKey
     appKey = key
+
+    # Setting cookie
+    global global_cookie
+    global_cookie = request.cookies.get("session_name")
 
 
 @app.route("/keyValuesCalls", methods=["GET"])
@@ -397,6 +415,11 @@ def not_found_error():
 
 @app.before_request
 def header_check():
+    
+    # Setting cookie
+    global global_cookie
+    global_cookie = request.cookies.get("session_name")
+
     if request.method == 'POST':
 
         # URL BreakDown
@@ -429,6 +452,11 @@ def add_header(response):
     # Sending Keys
     response.set_cookie('ak', dlpckg.base64_encoder(appKey))
     response.set_cookie('tk', dlpckg.base64_encoder(tempKey))
+
+    # Sending Session name
+    response.set_cookie('session_name', request.cookies.get("session_name"))
+    global global_cookie
+    global_cookie = response.set_cookie('session_name', request.cookies.get("session_name"))
 
     return response
 

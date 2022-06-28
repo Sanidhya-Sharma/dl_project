@@ -42,7 +42,7 @@
         })
 
         // Console Clear after some time
-        clear_console(500)
+        // clear_console(500)
 
         // Dev message
         my_message()
@@ -127,12 +127,10 @@
             // Calling global setup for AJAX Headers and CSRF
             Ajax_global_setup(apiKey, tempKey, csrfToken)
 
-        })
-
-        rt.fail( function(data) {
+        }).fail( function(jqxhr) {
             // alert("Please Draw Something on the canvas")
             $.notify(`Please Draw Something on the canvas`, "error");
-
+            console.log("Failed")
             // Notification Repeat Fix
             clear_extra_notifications("notifyjs-wrapper notifyjs-hidable")
         });
@@ -690,7 +688,15 @@
                 // Auth Error
                 else if(response.code == "401"){
 
+                    // Desired location from server
                     window.location = response.redirect_url;
+
+                }
+                // Auth Error
+                else if(response.code == "403"){
+
+                    // Refresh
+                    window.location = location.reload();
 
                 }else {
                     headingDiv.innerHTML = "<h4> Deep Learning Predicts :<br><br><span><i class=\"canvas_icon_bot gg-bot\"></i></span></h4><br><div class='circle'><h1 class='responce_dl'>" + response.data + "<h1></div>";
@@ -828,7 +834,15 @@
                 // Auth Error
                 else if(response.code == "401"){
 
+                    // Desired location from server
                     window.location = response.redirect_url;
+
+                }
+                // Auth Error
+                else if(response.code == "403"){
+
+                    // Refresh
+                    window.location = location.reload();
 
                 }else{
 
