@@ -1,5 +1,5 @@
 # Global Imports
-from flask import Flask, render_template, request, url_for, redirect, jsonify, send_from_directory, g, session
+from flask import Flask, render_template, request, url_for, redirect, jsonify, send_from_directory
 import os
 from functools import wraps
 

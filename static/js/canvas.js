@@ -1,6 +1,9 @@
 // With strict mode, you can not use undeclared variables
 "use strict";
 
+//Global Pen Radius
+var pen_radius = -1;
+
 // On-page Load call with even listeners
     document.getElementById("mainbody").onload = function() {
 
@@ -12,6 +15,12 @@
 
         //initializing
         init()
+
+        //Global Pen Radius
+        pen_radius = pen_slider(pen_radius);
+
+        // Initializing Slider for pen
+        pen_slider(pen_radius)
 
         //Initializing color event listeners
         color_boxes_event_listners()
@@ -69,7 +78,6 @@
         }
         return null;
     }
-
 
     // sleep
     function sleep(ms) {
@@ -237,6 +245,58 @@
         fire_console_events()
     }
 
+    // Pen Slider function
+    function pen_slider(pen_radius = window.pen_radius){
+
+        // Checking if the default value is not empty string
+         if (pen_radius === -1){
+             pen_radius = 10;
+             // Listeners
+            mouse_and_touch_listeners(pen_radius)
+         }
+
+         // Grabbing the elements with respective IDs
+         let myRange = document.querySelector('#PenRange');
+         let myValue = document.querySelector('#PenRangeLabel');
+
+         // Label name
+         let myUnits = 'radius';
+
+         // OFFSET CALCULATION
+         // Page Boundries offset
+         let off = myRange.offsetWidth / (parseInt(myRange.max) - parseInt(myRange.min));
+         // Slider Range Values Offset
+         let px =  ((myRange.valueAsNumber - parseInt(myRange.min)) * off) - (myValue.offsetParent.offsetWidth / 2);
+
+          // calculating the lef and top offset
+          myValue.parentElement.style.left = px + 'px';
+          // myValue.parentElement.style.top = myRange.offsetHeight + 'px';
+          myValue.parentElement.style.top = '70'+'%';
+          myValue.innerHTML = myRange.value + ' ' + myUnits;
+
+          // Initial Pend Radius Initialization
+          pen_radius = myRange.value
+
+          // Event Listener
+          myRange.addEventListener("input", (e) => {scroll_movement(e)});
+
+          // Called repeatedly for any user input performed on pen slider
+          function scroll_movement(){
+
+            // Sending the input in range back
+            myValue.innerHTML = myRange.value + ' ' + myUnits;
+
+            // Assigning values from slider to global pen_radius
+            window.pen_radius = myRange.value
+
+            // Supplying the left offset
+            let px = ((myRange.valueAsNumber - parseInt(myRange.min)) * off) - (myValue.offsetWidth / 2);
+            myValue.parentElement.style.left = px + 'px';
+
+          }
+          return pen_radius
+    };
+
 
     // Variables for state
     var e = window.event
@@ -253,6 +313,7 @@
 
     // Initialization call
     function init() {
+
         // Console log for checking running of the function
         // console.log("Running Init")
 
@@ -267,60 +328,198 @@
         // Getting bounds of the rectangle
         // canvasBounds = canvas.getBoundingClientRect();
 
-        // Even listeners with respect to each movement on canvas
-        canvas.addEventListener("mousemove", function (e) {
-            findxy('move', e)
-        }, false);
+        // Event Listener presence flags
+        canvas.setAttribute('listener', 'false');
+        document.body.setAttribute('listener', 'false');
 
-        //touch
-        canvas.addEventListener("touchmove", function (e) {
-            findxy('move', e)
-        }, false);
-
-        canvas.addEventListener("mousedown", function (e) {
-            findxy('down', e)
-        }, false);
-
-        // touch
-        canvas.addEventListener("touchstart", function (e) {
-            findxy('down', e)
-        }, false);
-
-        canvas.addEventListener("mouseup", function (e) {
-            findxy('up', e)
-        }, false);
-
-        canvas.addEventListener("mouseout", function (e) {
-            findxy('out', e)
-        }, false);
-
-        // touch
-        canvas.addEventListener("touchend", function (e) {
-            findxy('out', e)
-        }, false);
-
-
-
-        // Prevent scrolling when touching the canvas
-        document.body.addEventListener("touchstart", function (e) {
-          if (e.target == canvas) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-        document.body.addEventListener("touchend", function (e) {
-          if (e.target == canvas) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-        document.body.addEventListener("touchmove", function (e) {
-          if (e.target == canvas) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-
-
+        // initializing Listeners
+        mouse_and_touch_listeners()
     }
 
+    // Canvas movement listeners
+    function mouse_and_touch_listeners() {
+
+        if (canvas.getAttribute('listener') === undefined) {
+            canvas.setAttribute('listener', 'false');
+        }
+
+        if (document.body.getAttribute('listener') === undefined) {
+            document.body.setAttribute('listener', 'false');
+        }
+
+
+        // Checking if the Event Listener is present or not and if present then removing and re-initializing it
+        if (canvas.getAttribute('listener') === 'true') {
+
+            // Removing Even listeners with respect to each movement on canvas
+            canvas.removeEventListener("mousemove", function (e) {
+                findxy('move', e )
+            }, true);
+
+            // Removing touch
+            canvas.removeEventListener("touchmove", function (e) {
+                findxy('move', e)
+            }, true);
+
+            canvas.removeEventListener("mousedown", function (e) {
+                findxy('down', e)
+            }, true);
+
+            // Removing touch
+            canvas.removeEventListener("touchstart", function (e) {
+                findxy('down', e)
+            }, true);
+
+            canvas.removeEventListener("mouseup", function (e) {
+                findxy('up', e)
+            }, true);
+
+            canvas.removeEventListener("mouseout", function (e) {
+                findxy('out', e)
+            }, true);
+
+            // Removing touch
+            canvas.removeEventListener("touchend", function (e) {
+                findxy('out', e)
+            }, true);
+
+            // Adding Even listeners with respect to each movement on canvas
+            canvas.addEventListener("mousemove", function (e) {
+                findxy('move', e )
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchmove", function (e) {
+                findxy('move', e)
+            }, true);
+
+            canvas.addEventListener("mousedown", function (e) {
+                findxy('down', e)
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchstart", function (e) {
+                findxy('down', e)
+            }, true);
+
+            canvas.addEventListener("mouseup", function (e) {
+                findxy('up', e)
+            }, true);
+
+            canvas.addEventListener("mouseout", function (e) {
+                findxy('out', e)
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchend", function (e) {
+                findxy('out', e)
+            }, true);
+
+            canvas.setAttribute('listener', 'true');
+
+        }else{
+
+            // Adding Even listeners with respect to each movement on canvas
+            canvas.addEventListener("mousemove", function (e) {
+                findxy('move', e )
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchmove", function (e) {
+                findxy('move', e)
+            }, true);
+
+            canvas.addEventListener("mousedown", function (e) {
+                findxy('down', e)
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchstart", function (e) {
+                findxy('down', e)
+            }, true);
+
+            canvas.addEventListener("mouseup", function (e) {
+                findxy('up', e)
+            }, true);
+
+            canvas.addEventListener("mouseout", function (e) {
+                findxy('out', e)
+            }, true);
+
+            // Adding touch
+            canvas.addEventListener("touchend", function (e) {
+                findxy('out', e)
+            }, true);
+
+            canvas.setAttribute('listener', 'true');
+        };
+
+        // Checking if the Event Listener is present or not and if present then removing and re-initializing it (Prevent Disturbances while drawing)
+        if (document.body.getAttribute('listener') === 'true') {
+
+            // Removing Prevent scrolling when touching the canvas
+            document.body.removeEventListener("touchstart", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.removeEventListener("touchend", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.removeEventListener("touchmove", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            // Adding Prevent scrolling when touching the canvas
+            document.body.addEventListener("touchstart", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.addEventListener("touchend", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.addEventListener("touchmove", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.setAttribute('listener', 'true');
+
+        }else{
+            // Adding Prevent scrolling when touching the canvas
+            document.body.addEventListener("touchstart", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.addEventListener("touchend", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.addEventListener("touchmove", function (e) {
+              if (e.target == canvas) {
+                e.preventDefault();
+              }
+            }, { passive: false });
+
+            document.body.setAttribute('listener', 'true');
+        };
+    }
 
     // Setting the active colour
     function active_color_box(obj) {
@@ -448,7 +647,7 @@
     }
 
     // Drawing the path
-    function draw(e) {
+    function draw(e, pen_radius=window.pen_radius) {
         ctx.beginPath();
 
         // Accepting Mouse and Touch inputs ctx.lineTo(e.clientX, e.clientY);
@@ -469,8 +668,11 @@
 
         // ctx.lineWidth = y;  //commented due to issues with stroke
 
-        const r = 10;               //marks the radius of the circle
-        ctx.lineWidth = r * 2;
+        //const r = 10;               //marks the radius of the circle (initial Static code)
+        // ctx.lineWidth = r * 2;
+
+        // Dynamic slider pen radius
+        ctx.lineWidth = parseInt(pen_radius) * 2;
         ctx.lineCap = "round";
 
         ctx.stroke();
@@ -884,46 +1086,53 @@
     // Function responsible for drawing with respect to event listener call
     function findxy(res, e) {
 
-        // Getting body element
-        let scroll_lock = document.getElementById("mainbody")
+        // Making sure the pen_radius is not zero
+        if (parseInt(window.pen_radius) !== parseInt(0)) {
 
-        if (res == 'down') {
-            prevX = currX;
-            prevY = currY;
-            currX = e.clientX - canvas.offsetLeft;
-            currY = e.clientY - canvas.offsetTop;
+            // Getting body element
+            let scroll_lock = document.getElementById("mainbody")
 
-            flag = true;
-            dot_flag = true;
+            // On hover on top of canvas move the view to top (Avoid offsets while drawing)
+            window.scrollTo(0, 0);
 
-            if (dot_flag) {
-                ctx.beginPath();
-                ctx.fillStyle = x;
-                ctx.fillRect(currX, currY, 2, 2);
-                ctx.closePath();
-                dot_flag = false;
-            }
-        }
-        if (res == 'up' || res == "out") {
-            flag = false;
-        }
-        if (res == 'move') {
-
-            if (flag) {
+            if (res == 'down') {
                 prevX = currX;
                 prevY = currY;
                 currX = e.clientX - canvas.offsetLeft;
                 currY = e.clientY - canvas.offsetTop;
 
-                draw(e);
+                flag = true;
+                dot_flag = true;
 
-                // Scroll lock when drawing
-                // scroll_lock.style.overflow = "hidden"
+                if (dot_flag) {
+                    ctx.beginPath();
+                    ctx.fillStyle = x;
+                    ctx.fillRect(currX, currY, 2, 2);
+                    ctx.closePath();
+                    dot_flag = false;
+                }
             }
+            if (res == 'up' || res == "out") {
+                flag = false;
+            }
+            if (res == 'move') {
 
-        }else
-            {
+                if (flag) {
+
+                    prevX = currX;
+                    prevY = currY;
+                    currX = e.clientX - canvas.offsetLeft;
+                    currY = e.clientY - canvas.offsetTop;
+
+                    draw(e);
+
+                    // Scroll lock when drawing
+                    // scroll_lock.style.overflow = "hidden"
+                }
+
+            } else {
                 // Scroll not locked
                 // scroll_lock.style.overflow = "visible"
             }
+        }
     }
