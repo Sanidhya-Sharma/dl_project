@@ -9,7 +9,7 @@ clang==5.0
 click==8.0.3
 colorama==0.4.4
 cryptography==37.0.2
-dataclasses==0.8
+dataclasses
 DateTime==4.4
 Flask==1.1.2
 Flask-WTF==1.0.1
